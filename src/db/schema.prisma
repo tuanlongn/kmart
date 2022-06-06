@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(255)
+  email     String   @unique @db.VarChar(255)
+  phone     String?  @db.VarChar(20)
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+
+  orders       Order[]
+  transactions Transaction[]
+  cartItems    CartItem[]
+
+  AuthProvider AuthProvider[]
+  @@map(name: "users")
+}
+
+model AuthProvider {
+  id                String  @id @default(cuid())
+  type              String  @map(name: "provider_type")
+  provider          String  @map(name: "provider")
+  providerAccountId String  @map(name: "provider_account_id")
+  refreshToken      String? @map(name: "refresh_token")
+  accessToken       String? @map(name: "access_token") @db.LongText
+  expiresAt         Int?    @map(name: "expires_at")
+  tokenType         String? @map(name: "token_type")
+  scope             String?
+  idToken           String? @map(name: "id_token") @db.Text
+  sessionState      String? @map(name: "session_state")
+
+  userId String @map(name: "user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+
+  @@unique([provider, providerAccountId])
+  @@map(name: "auth_providers")
+}
+
+model Product {
+  id          String @id @default(cuid())
+  name        String @db.VarChar(255)
+  description String @db.VarChar(2000)
+
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+
+  cartItems      CartItem[]
+  inventoryItems InventoryItem[]
+  @@map(name: "products")
+}
+
+model InventoryItem {
+  sku       String   @id @unique
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String   @map(name: "product_id")
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+
+  @@map(name: "inventory_product_items")
+}
+
+enum CartItemStatus {
+  HOLD
+  PAID
+}
+
+model CartItem {
+  id        String         @id @default(cuid())
+  user      User           @relation(fields: [userId], references: [id])
+  userId    String         @map(name: "user_id")
+  product   Product        @relation(fields: [productId], references: [id])
+  productId String         @map(name: "product_id")
+  quantity  Int
+  status    CartItemStatus @default(HOLD)
+  addAt     DateTime       @map(name: "add_at")
+
+  order   Order?  @relation(fields: [orderId], references: [id])
+  orderId String?
+
+  @@unique([userId, productId])
+  @@map(name: "cart_items")
+}
+
+enum OrderStatus {
+  UNPAID
+  PAID
+  CANCELED
+}
+
+model Order {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map(name: "user_id")
+
+  status    OrderStatus @default(UNPAID)
+  createdAt DateTime    @default(now()) @map(name: "created_at")
+  updatedAt DateTime    @updatedAt @map(name: "updated_at")
+
+  items        CartItem[]
+  transactions Transaction[]
+
+  @@map(name: "orders")
+}
+
+enum PaymentTypes {
+  MOMO
+  BANK_TRANSFER
+  CASH
+  VOUCHER
+}
+
+model Transaction {
+  id          String       @id @default(cuid())
+  order       Order        @relation(fields: [orderId], references: [id])
+  orderId     String       @map(name: "order_id")
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String       @map(name: "user_id")
+  paymentType PaymentTypes @default(CASH)
+  quantity    Int?         @db.UnsignedTinyInt
+  createdAt   DateTime     @default(now()) @map(name: "created_at")
+  updatedAt   DateTime     @updatedAt @map(name: "updated_at")
+
+  @@map(name: "transactions")
+}
