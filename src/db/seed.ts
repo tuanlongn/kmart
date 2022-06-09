@@ -1,38 +1,54 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { Prisma, PrismaClient, Product } from "@prisma/client";
+import cuid from "cuid";
+import { faker } from "@faker-js/faker";
+import { randomNumberBetween } from "../common/utils";
 
 const prisma = new PrismaClient();
 
-const productData: Prisma.ProductCreateInput[] = [
-  {
-    name: "Kem ly merino - SOCOLA CHUỐI",
-    description:
-      "Kem ly Merino có thể thỏa mãn mọi khẩu vị với các hương vị từ cốm sữa, sữa dừa ngọt ngào, vani dâu, vani socola hay socola chuối độc đáo đến các hương vị kem ly truyền thống như kem đậu xanh, đậu đỏ, khoai môn, sầu riêng hay đặc biệt hơn là kem ly dành riêng cho mùa đông với hương quế và gừng vừa ấm áp vừa quen thuộc với khẩu vị người Việt Nam.",
-  },
-  {
-    name: "Kem ly merino - CỐM SỮA",
-    description:
-      "Kem ly Merino có thể thỏa mãn mọi khẩu vị với các hương vị từ cốm sữa, sữa dừa ngọt ngào, vani dâu, vani socola hay socola chuối độc đáo đến các hương vị kem ly truyền thống như kem đậu xanh, đậu đỏ, khoai môn, sầu riêng hay đặc biệt hơn là kem ly dành riêng cho mùa đông với hương quế và gừng vừa ấm áp vừa quen thuộc với khẩu vị người Việt Nam.",
-  },
-  {
-    name: "Kem ly merino - VANI SOCOLA",
-    description:
-      "Kem ly Merino có thể thỏa mãn mọi khẩu vị với các hương vị từ cốm sữa, sữa dừa ngọt ngào, vani dâu, vani socola hay socola chuối độc đáo đến các hương vị kem ly truyền thống như kem đậu xanh, đậu đỏ, khoai môn, sầu riêng hay đặc biệt hơn là kem ly dành riêng cho mùa đông với hương quế và gừng vừa ấm áp vừa quen thuộc với khẩu vị người Việt Nam.",
-  },
-  {
-    name: "Kem ly merino - SỮA DỪA",
-    description:
-      "Kem ly Merino có thể thỏa mãn mọi khẩu vị với các hương vị từ cốm sữa, sữa dừa ngọt ngào, vani dâu, vani socola hay socola chuối độc đáo đến các hương vị kem ly truyền thống như kem đậu xanh, đậu đỏ, khoai môn, sầu riêng hay đặc biệt hơn là kem ly dành riêng cho mùa đông với hương quế và gừng vừa ấm áp vừa quen thuộc với khẩu vị người Việt Nam.",
-  },
-];
-
 async function main() {
+  console.log(`Trancate all tables ...`);
+  await prisma.$queryRaw`TRUNCATE TABLE products;`;
+  await prisma.$queryRaw`TRUNCATE TABLE inventory_items;`;
+  await prisma.$queryRaw`TRUNCATE TABLE orders;`;
+
   console.log(`Start seeding ...`);
-  for (const p of productData) {
-    const product = await prisma.product.create({
-      data: p,
+
+  const productData: Prisma.ProductCreateManyInput[] = [];
+  const productVariantData: Prisma.ProductVariantCreateManyInput[] = [];
+  const imageData: Prisma.ProductImageCreateManyInput[] = [];
+
+  for (let i = 1; i <= 1000; i++) {
+    const productId = cuid();
+
+    for (let j = 1; j <= randomNumberBetween(4, 6); j++) {
+      imageData.push({
+        productId: productId,
+        source: faker.image.food(),
+        position: j,
+      });
+    }
+
+    productData.push({
+      id: productId,
+      name: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      labelPrice: Number(faker.commerce.price(10, 20)),
     });
-    console.log(`Created user with id: ${product.id}`);
+
+    productVariantData.push({
+      productId: productId,
+      price: Number(faker.commerce.price(10, 20)),
+      title: faker.commerce.productAdjective(),
+    });
   }
+  await prisma.$transaction([
+    prisma.product.createMany({ data: productData, skipDuplicates: true }),
+    prisma.productVariant.createMany({
+      data: productVariantData,
+      skipDuplicates: true,
+    }),
+    prisma.productImage.createMany({ data: imageData, skipDuplicates: true }),
+  ]);
   console.log(`Seeding finished.`);
 }
 
