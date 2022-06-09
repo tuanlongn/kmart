@@ -20,7 +20,10 @@ export default NextAuth({
     // maxAge: 60 * 60 * 24 * 30, // 30 days
   },
   callbacks: {
-    async jwt({ token }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.isAdmin = user.isAdmin;
+      }
       return token;
     },
     async session({ session, token, user }) {

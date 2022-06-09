@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import { Account } from "next-auth";
 import type { Adapter, AdapterSession, AdapterUser } from "next-auth/adapters";
+import { userInfo } from "os";
 
 export default function PrismaAdapter(prisma: PrismaClient): Adapter {
   return {
@@ -16,6 +17,7 @@ export default function PrismaAdapter(prisma: PrismaClient): Adapter {
         name: newUser.name,
         email: newUser.email,
         emailVerified: newUser.createdAt,
+        isAdmin: user.isAdmin,
       };
     },
     async getUser(id: string): Promise<AdapterUser | null> {
@@ -26,6 +28,7 @@ export default function PrismaAdapter(prisma: PrismaClient): Adapter {
             name: user.name,
             email: user.email,
             emailVerified: user.createdAt,
+            isAdmin: user.isAdmin,
           }
         : null;
     },
@@ -37,6 +40,7 @@ export default function PrismaAdapter(prisma: PrismaClient): Adapter {
             name: user.name,
             email: user.email,
             emailVerified: user.createdAt,
+            isAdmin: user.isAdmin,
           }
         : null;
     },
@@ -59,6 +63,7 @@ export default function PrismaAdapter(prisma: PrismaClient): Adapter {
             name: auth.user.name,
             email: auth.user.email,
             emailVerified: auth.user.createdAt,
+            isAdmin: auth.user.isAdmin,
           }
         : null;
     },

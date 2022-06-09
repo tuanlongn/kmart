@@ -12,7 +12,6 @@ async function main() {
   await prisma.$queryRaw`TRUNCATE TABLE orders;`;
 
   console.log(`Start seeding ...`);
-
   const productData: Prisma.ProductCreateManyInput[] = [];
   const productVariantData: Prisma.ProductVariantCreateManyInput[] = [];
   const imageData: Prisma.ProductImageCreateManyInput[] = [];
