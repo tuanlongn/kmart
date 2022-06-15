@@ -1,0 +1,58 @@
+type CartItem {
+  id: ID!
+  product: Product!
+  productVariant: ProductVariant!
+  user: User!
+}
+
+type Category {
+  description: String
+  id: ID!
+  name: String!
+  products: [Product!]!
+}
+
+type Order {
+  id: ID!
+  status: String!
+  user: User!
+}
+
+type Product {
+  description: String
+  id: ID!
+  images: [ProductImage!]!
+  labelPrice: Float
+  name: String!
+  variants: [ProductVariant!]!
+}
+
+type ProductImage {
+  id: ID!
+  position: Int!
+  source: String!
+}
+
+type ProductVariant {
+  id: ID!
+  image: ProductImage!
+  price: Float!
+  title: String
+}
+
+type Query {
+  categories(limit: Int, offset: Int): [Category!]!
+  me: User!
+  products(limit: Int, offset: Int): [Product!]!
+  user(
+    """userId"""
+    id: String!
+  ): User!
+  users: [User!]!
+}
+
+type User {
+  email: String!
+  id: ID!
+  orders: [Order!]!
+}

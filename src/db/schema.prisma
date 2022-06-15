@@ -24,97 +24,125 @@ model User {
   email     String   @unique @db.VarChar(255)
   phone     String?  @db.VarChar(20)
   isAdmin   Boolean  @default(false)
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @updatedAt @map(name: "updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   orders       Order[]
   transactions Transaction[]
   cartItems    CartItem[]
   AuthProvider AuthProvider[]
 
-  @@map(name: "users")
+  @@map("users")
 }
 
 model AuthProvider {
   id                String   @id @default(cuid())
-  userId            String   @map(name: "user_id")
+  userId            String   @map("user_id")
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type              String   @map(name: "provider_type")
-  provider          String   @map(name: "provider")
-  providerAccountId String   @map(name: "provider_account_id")
-  refreshToken      String?  @map(name: "refresh_token")
-  accessToken       String?  @map(name: "access_token") @db.LongText
-  expiresAt         Int?     @map(name: "expires_at")
-  tokenType         String?  @map(name: "token_type")
+  type              String   @map("provider_type")
+  provider          String   @map("provider")
+  providerAccountId String   @map("provider_account_id")
+  refreshToken      String?  @map("refresh_token")
+  accessToken       String?  @map("access_token") @db.LongText
+  expiresAt         Int?     @map("expires_at")
+  tokenType         String?  @map("token_type")
   scope             String?
-  idToken           String?  @map(name: "id_token") @db.Text
-  sessionState      String?  @map(name: "session_state")
-  createdAt         DateTime @default(now()) @map(name: "created_at")
-  updatedAt         DateTime @updatedAt @map(name: "updated_at")
+  idToken           String?  @map("id_token") @db.Text
+  sessionState      String?  @map("session_state")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@unique([provider, providerAccountId])
-  @@map(name: "auth_providers")
+  @@map("auth_providers")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(255)
+  description String?  @db.VarChar(2000)
+  deleted     Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  categoriesOnProducts CategoriesOnProducts[]
+
+  @@map("categories")
 }
 
 model Product {
   id          String   @id @default(cuid())
   name        String   @db.VarChar(255)
-  description String   @db.VarChar(2000)
+  description String?  @db.VarChar(2000)
   labelPrice  Float?   @map("label_price")
-  createdAt   DateTime @default(now()) @map(name: "created_at")
-  updatedAt   DateTime @updatedAt @map(name: "updated_at")
+  active      Boolean  @default(true)
+  deleted     Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  cartItems      CartItem[]
-  inventoryItems InventoryItem[]
-  images         ProductImage[]
-  variants       ProductVariant[]
+  cartItems            CartItem[]
+  inventoryItems       InventoryItem[]
+  images               ProductImage[]
+  variants             ProductVariant[]
+  categoriesOnProducts CategoriesOnProducts[]
 
-  @@map(name: "products")
+  @@map("products")
+}
+
+model CategoriesOnProducts {
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String   @map("product_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String   @map("category_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  assignedBy String   @map("assigned_by")
+
+  @@id([productId, categoryId])
+  @@map("categories_on_products")
 }
 
 model ProductVariant {
-  id        String        @id @default(cuid())
-  product   Product       @relation(fields: [productId], references: [id])
-  productId String        @map(name: "product_id")
+  id        String       @id @default(cuid())
+  product   Product      @relation(fields: [productId], references: [id])
+  productId String       @map("product_id")
   price     Float
   title     String?
-  barcode   String?       @db.Char(13)
-  image     ProductImage? @relation(fields: [imageId], references: [id])
-  imageId   String?       @map(name: "image_id")
-  createdAt DateTime      @default(now()) @map(name: "created_at")
-  updatedAt DateTime      @updatedAt @map(name: "updated_at")
+  barcode   String?      @db.Char(13)
+  image     ProductImage @relation(fields: [imageId], references: [id])
+  imageId   String       @map("image_id")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
 
   inventoryItems InventoryItem[]
   cartItems      CartItem[]
 
-  @@map(name: "product_variants")
+  @@map("product_variants")
 }
 
 model ProductImage {
   id        String   @id @default(cuid())
   product   Product  @relation(fields: [productId], references: [id])
-  productId String   @map(name: "product_id")
+  productId String   @map("product_id")
   position  Int      @db.UnsignedTinyInt
   source    String   @db.VarChar(1000)
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @updatedAt @map(name: "updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   ProductVariant ProductVariant[]
-  @@map(name: "product_images")
+  @@map("product_images")
 }
 
 model InventoryItem {
   id               String         @id @default(cuid())
   sku              String         @unique
   product          Product        @relation(fields: [productId], references: [id])
-  productId        String         @map(name: "product_id")
+  productId        String         @map("product_id")
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
-  productVariantId String         @map(name: "product_variant_id")
+  productVariantId String         @map("product_variant_id")
   price            Float
-  createdAt        DateTime       @default(now()) @map(name: "created_at")
-  updatedAt        DateTime       @updatedAt @map(name: "updated_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
 
-  @@map(name: "inventory_items")
+  @@map("inventory_items")
 }
 
 enum CartItemStatus {
@@ -125,20 +153,20 @@ enum CartItemStatus {
 model CartItem {
   id               String         @id @default(cuid())
   user             User           @relation(fields: [userId], references: [id])
-  userId           String         @map(name: "user_id")
+  userId           String         @map("user_id")
   product          Product        @relation(fields: [productId], references: [id])
-  productId        String         @map(name: "product_id")
+  productId        String         @map("product_id")
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
-  productVariantId String         @map(name: "product_variant_id")
+  productVariantId String         @map("product_variant_id")
   quantity         Int
   status           CartItemStatus @default(HOLD)
-  addAt            DateTime       @map(name: "add_at")
+  addAt            DateTime       @map("add_at")
 
   order   Order?  @relation(fields: [orderId], references: [id])
   orderId String?
 
   @@unique([userId, productId])
-  @@map(name: "cart_items")
+  @@map("cart_items")
 }
 
 enum OrderStatus {
@@ -150,15 +178,15 @@ enum OrderStatus {
 model Order {
   id        String      @id @default(cuid())
   user      User        @relation(fields: [userId], references: [id])
-  userId    String      @map(name: "user_id")
+  userId    String      @map("user_id")
   status    OrderStatus @default(UNPAID)
-  createdAt DateTime    @default(now()) @map(name: "created_at")
-  updatedAt DateTime    @updatedAt @map(name: "updated_at")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
 
   items        CartItem[]
   transactions Transaction[]
 
-  @@map(name: "orders")
+  @@map("orders")
 }
 
 enum PaymentTypes {
@@ -171,13 +199,13 @@ enum PaymentTypes {
 model Transaction {
   id          String       @id @default(cuid())
   order       Order        @relation(fields: [orderId], references: [id])
-  orderId     String       @map(name: "order_id")
+  orderId     String       @map("order_id")
   user        User         @relation(fields: [userId], references: [id])
-  userId      String       @map(name: "user_id")
+  userId      String       @map("user_id")
   paymentType PaymentTypes @default(CASH)
   quantity    Int?         @db.UnsignedTinyInt
-  createdAt   DateTime     @default(now()) @map(name: "created_at")
-  updatedAt   DateTime     @updatedAt @map(name: "updated_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  @@map(name: "transactions")
+  @@map("transactions")
 }

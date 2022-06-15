@@ -1,0 +1,22 @@
+query GetCategoriesWithProducts($limit: Int, $offset: Int) {
+  categories(limit: $limit, offset: $offset) {
+    description
+    id
+    name
+    products {
+      description
+      id
+      labelPrice
+      name
+      variants {
+        id
+        title
+        price
+        image {
+          id
+          source
+        }
+      }
+    }
+  }
+}

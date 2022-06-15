@@ -1,0 +1,15 @@
+overwrite: true
+errorsOnly: true
+schema: ./scripts/build-schema.js
+documents: "**/**/*.{gql,graphql}"
+generates:
+  # This will take your schema and print an SDL schema.
+  schema.graphql:
+    plugins:
+      - schema-ast
+  # This will contain the generated apollo hooks and schema types needed to make type-safe queries with the apollo client
+  src/graphql/__generated__/resolvers-types.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo

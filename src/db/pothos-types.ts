@@ -1,4 +1,4 @@
-import type { Prisma, User, AuthProvider, Product, ProductVariant, ProductImage, InventoryItem, CartItem, Order, Transaction } from "@prisma/client";
+import type { Prisma, User, AuthProvider, Category, Product, CategoriesOnProducts, ProductVariant, ProductImage, InventoryItem, CartItem, Order, Transaction } from "@prisma/client";
 export default interface PrismaTypes {
     User: {
         Name: "User";
@@ -44,15 +44,31 @@ export default interface PrismaTypes {
             };
         };
     };
+    Category: {
+        Name: "Category";
+        Shape: Category;
+        Include: Prisma.CategoryInclude;
+        Select: Prisma.CategorySelect;
+        Where: Prisma.CategoryWhereUniqueInput;
+        Fields: "categoriesOnProducts";
+        RelationName: "categoriesOnProducts";
+        ListRelations: "categoriesOnProducts";
+        Relations: {
+            categoriesOnProducts: {
+                Shape: CategoriesOnProducts[];
+                Types: PrismaTypes["CategoriesOnProducts"];
+            };
+        };
+    };
     Product: {
         Name: "Product";
         Shape: Product;
         Include: Prisma.ProductInclude;
         Select: Prisma.ProductSelect;
         Where: Prisma.ProductWhereUniqueInput;
-        Fields: "cartItems" | "inventoryItems" | "images" | "variants";
-        RelationName: "cartItems" | "inventoryItems" | "images" | "variants";
-        ListRelations: "cartItems" | "inventoryItems" | "images" | "variants";
+        Fields: "cartItems" | "inventoryItems" | "images" | "variants" | "categoriesOnProducts";
+        RelationName: "cartItems" | "inventoryItems" | "images" | "variants" | "categoriesOnProducts";
+        ListRelations: "cartItems" | "inventoryItems" | "images" | "variants" | "categoriesOnProducts";
         Relations: {
             cartItems: {
                 Shape: CartItem[];
@@ -69,6 +85,30 @@ export default interface PrismaTypes {
             variants: {
                 Shape: ProductVariant[];
                 Types: PrismaTypes["ProductVariant"];
+            };
+            categoriesOnProducts: {
+                Shape: CategoriesOnProducts[];
+                Types: PrismaTypes["CategoriesOnProducts"];
+            };
+        };
+    };
+    CategoriesOnProducts: {
+        Name: "CategoriesOnProducts";
+        Shape: CategoriesOnProducts;
+        Include: Prisma.CategoriesOnProductsInclude;
+        Select: Prisma.CategoriesOnProductsSelect;
+        Where: Prisma.CategoriesOnProductsWhereUniqueInput;
+        Fields: "product" | "category";
+        RelationName: "product" | "category";
+        ListRelations: never;
+        Relations: {
+            product: {
+                Shape: Product;
+                Types: PrismaTypes["Product"];
+            };
+            category: {
+                Shape: Category;
+                Types: PrismaTypes["Category"];
             };
         };
     };
@@ -87,7 +127,7 @@ export default interface PrismaTypes {
                 Types: PrismaTypes["Product"];
             };
             image: {
-                Shape: ProductImage | null;
+                Shape: ProductImage;
                 Types: PrismaTypes["ProductImage"];
             };
             inventoryItems: {

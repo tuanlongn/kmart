@@ -1,7 +1,7 @@
 import { createServer } from "@graphql-yoga/node";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
-import schema from "../../graphql/schema";
+import { schema } from "../../graphql/schema";
 
 const secret = process.env.NEXTAUTH_SECRET;
 

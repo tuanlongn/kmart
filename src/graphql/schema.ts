@@ -1,6 +1,6 @@
 import { builder } from "./builder";
 import prisma from "../db/prisma";
-import { Product, User } from "@prisma/client";
+import { Category, Product, User } from "@prisma/client";
 
 builder.prismaObject("User", {
   findUnique: (user) => ({ id: user.id }),
@@ -11,12 +11,41 @@ builder.prismaObject("User", {
   }),
 });
 
+builder.prismaObject("Category", {
+  findUnique: (category) => ({ id: category.id }),
+  fields: (t) => ({
+    id: t.exposeID("id"),
+    name: t.exposeString("name"),
+    description: t.string({
+      nullable: true,
+      resolve: (category) => category.description,
+    }),
+    products: t.prismaField({
+      type: ["Product"],
+      resolve: (query, root, args, ctx, info) => {
+        return prisma.product.findMany({
+          where: {
+            categoriesOnProducts: {
+              some: {
+                categoryId: root.id,
+              },
+            },
+          },
+        });
+      },
+    }),
+  }),
+});
+
 builder.prismaObject("Product", {
   findUnique: (product) => ({ id: product.id }),
   fields: (t) => ({
     id: t.exposeID("id"),
     name: t.exposeString("name"),
-    description: t.exposeString("description"),
+    description: t.string({
+      nullable: true,
+      resolve: (product) => product.description,
+    }),
     labelPrice: t.float({
       nullable: true,
       resolve: (product) => product.labelPrice,
@@ -35,10 +64,7 @@ builder.prismaObject("ProductVariant", {
       resolve: (variant) => variant.title,
     }),
     price: t.exposeFloat("price"),
-    imageId: t.string({
-      nullable: true,
-      resolve: (variant) => variant.imageId,
-    }),
+    image: t.relation("image"),
   }),
 });
 
@@ -126,6 +152,16 @@ builder.queryType({
         });
       },
     }),
+    categories: t.prismaField({
+      type: ["Category"],
+      args: paginateArgs(),
+      resolve: async (query, root, args, ctx, info): Promise<Category[]> => {
+        return prisma.category.findMany({
+          ...query,
+          ...paginateQuery(args),
+        });
+      },
+    }),
   }),
 });
 
@@ -146,6 +182,4 @@ function paginateQuery(args: {
   };
 }
 
-const schema = builder.toSchema({});
-
-export default schema;
+export const schema = builder.toSchema({});
