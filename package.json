@@ -11,8 +11,8 @@
     "codegen:watch": "graphql-codegen --watch './src/**/*.{gql,graphql}'"
   },
   "prisma": {
-    "schema": "src/db/schema.prisma",
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} ./src/db/seed.ts"
+    "schema": "src/db/prisma/schema.prisma",
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} ./src/db/prisma/seed.ts"
   },
   "dependencies": {
     "@apollo/client": "^3.6.6",

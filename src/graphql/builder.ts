@@ -2,7 +2,7 @@ import SchemaBuilder from "@pothos/core";
 import ScopeAuthPlugin from "@pothos/plugin-scope-auth";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import { Prisma } from "@prisma/client";
-import PrismaTypes from "../db/pothos-types";
+import PrismaTypes from "../db/prisma/__generated__/pothos-types";
 import prisma from "../db/prisma";
 
 export const builder = new SchemaBuilder<{

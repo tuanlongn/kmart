@@ -1,7 +1,7 @@
-import { Prisma, PrismaClient, Product } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import cuid from "cuid";
 import { faker } from "@faker-js/faker";
-import { randomNumberBetween } from "../common/utils";
+import { randomNumberBetween } from "../../common/utils";
 
 const prisma = new PrismaClient();
 
