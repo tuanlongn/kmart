@@ -9,7 +9,7 @@ type Category {
   description: String
   id: ID!
   name: String!
-  products: [Product!]!
+  products(limit: Int, offset: Int): [Product!]!
 }
 
 type Order {

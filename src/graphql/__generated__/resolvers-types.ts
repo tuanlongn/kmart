@@ -31,6 +31,12 @@ export type Category = {
   products: Array<Product>;
 };
 
+
+export type CategoryProductsArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
+};
+
 export type Order = {
   __typename?: 'Order';
   id: Scalars['ID'];
@@ -97,8 +103,10 @@ export type User = {
 };
 
 export type GetCategoriesWithProductsQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']>;
-  offset?: InputMaybe<Scalars['Int']>;
+  categoryLimit?: InputMaybe<Scalars['Int']>;
+  categoryOffset?: InputMaybe<Scalars['Int']>;
+  productLimit?: InputMaybe<Scalars['Int']>;
+  productOffset?: InputMaybe<Scalars['Int']>;
 }>;
 
 
@@ -114,12 +122,12 @@ export type GetProductsQuery = { __typename?: 'Query', products: Array<{ __typen
 
 
 export const GetCategoriesWithProductsDocument = gql`
-    query GetCategoriesWithProducts($limit: Int, $offset: Int) {
-  categories(limit: $limit, offset: $offset) {
+    query GetCategoriesWithProducts($categoryLimit: Int, $categoryOffset: Int, $productLimit: Int, $productOffset: Int) {
+  categories(limit: $categoryLimit, offset: $categoryOffset) {
     description
     id
     name
-    products {
+    products(limit: $productLimit, offset: $productOffset) {
       description
       id
       labelPrice
@@ -150,8 +158,10 @@ export const GetCategoriesWithProductsDocument = gql`
  * @example
  * const { data, loading, error } = useGetCategoriesWithProductsQuery({
  *   variables: {
- *      limit: // value for 'limit'
- *      offset: // value for 'offset'
+ *      categoryLimit: // value for 'categoryLimit'
+ *      categoryOffset: // value for 'categoryOffset'
+ *      productLimit: // value for 'productLimit'
+ *      productOffset: // value for 'productOffset'
  *   },
  * });
  */

@@ -1,9 +1,14 @@
-query GetCategoriesWithProducts($limit: Int, $offset: Int) {
-  categories(limit: $limit, offset: $offset) {
+query GetCategoriesWithProducts(
+  $categoryLimit: Int
+  $categoryOffset: Int
+  $productLimit: Int
+  $productOffset: Int
+) {
+  categories(limit: $categoryLimit, offset: $categoryOffset) {
     description
     id
     name
-    products {
+    products(limit: $productLimit, offset: $productOffset) {
       description
       id
       labelPrice

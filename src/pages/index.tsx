@@ -3,14 +3,17 @@ import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Fragment } from "react";
 import { useGetCategoriesWithProductsQuery } from "../graphql/__generated__/resolvers-types";
+import ProductItemHome from "../components/ProductItem/ProductItemHome";
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
 
   const { loading, error, data } = useGetCategoriesWithProductsQuery({
     variables: {
-      limit: 10,
-      offset: 0,
+      categoryLimit: 10,
+      categoryOffset: 0,
+      productLimit: 4,
+      productOffset: 0,
     },
   });
 
@@ -31,17 +34,17 @@ const Home: NextPage = () => {
       {data?.categories.map((category) => (
         <div key={category.id}>
           <div>{category.name}</div>
-          <div className="list">
+          <div className="product-list flex">
             {category.products.map((product) => (
               <Fragment key={product.id}>
                 {product.variants.map((variant) => (
-                  <div key={variant.id} className="product-item">
-                    <Image
-                      src={variant.image.source}
-                      alt={product.name}
-                      layout="fill"
-                    />
-                  </div>
+                  <ProductItemHome
+                    key={variant.id}
+                    name={product.name}
+                    image={variant.image.source}
+                    labelPrice={product.labelPrice}
+                    price={variant.price}
+                  />
                 ))}
               </Fragment>
             ))}

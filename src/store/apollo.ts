@@ -12,7 +12,7 @@ function createIsomorphicLink() {
     // server
     const { SchemaLink } = require("@apollo/client/link/schema");
     const schema = require("../graphql/schema");
-    console.log(schema);
+    // console.log(schema);
     return new SchemaLink({ schema });
   } else {
     // client

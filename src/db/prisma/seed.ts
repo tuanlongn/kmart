@@ -60,7 +60,7 @@ async function main() {
       imageData.push({
         id: cuid(),
         productId: productId,
-        source: faker.image.food(),
+        source: faker.image.food(280, 280, true),
         position: j,
       });
     }

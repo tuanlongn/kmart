@@ -2,7 +2,7 @@ import { builder } from "./builder";
 import prisma from "../db/prisma";
 import { Category, Product, User } from "@prisma/client";
 
-builder.prismaObject("User", {
+const UserRef = builder.prismaObject("User", {
   findUnique: (user) => ({ id: user.id }),
   fields: (t) => ({
     id: t.exposeID("id"),
@@ -11,33 +11,7 @@ builder.prismaObject("User", {
   }),
 });
 
-builder.prismaObject("Category", {
-  findUnique: (category) => ({ id: category.id }),
-  fields: (t) => ({
-    id: t.exposeID("id"),
-    name: t.exposeString("name"),
-    description: t.string({
-      nullable: true,
-      resolve: (category) => category.description,
-    }),
-    products: t.prismaField({
-      type: ["Product"],
-      resolve: (query, root, args, ctx, info) => {
-        return prisma.product.findMany({
-          where: {
-            categoriesOnProducts: {
-              some: {
-                categoryId: root.id,
-              },
-            },
-          },
-        });
-      },
-    }),
-  }),
-});
-
-builder.prismaObject("Product", {
+const ProductRef = builder.prismaObject("Product", {
   findUnique: (product) => ({ id: product.id }),
   fields: (t) => ({
     id: t.exposeID("id"),
@@ -74,6 +48,33 @@ builder.prismaObject("ProductImage", {
     id: t.exposeID("id"),
     source: t.exposeString("source"),
     position: t.exposeInt("position"),
+  }),
+});
+
+const CategoryRef = builder.prismaObject("Category", {
+  findUnique: (category) => ({ id: category.id }),
+  fields: (t) => ({
+    id: t.exposeID("id"),
+    name: t.exposeString("name"),
+    description: t.string({
+      nullable: true,
+      resolve: (category) => category.description,
+    }),
+    products: t.field({
+      args: { ...paginateArgs() },
+      select: (args, ctx, nestedSelection) => ({
+        categoriesOnProducts: {
+          select: {
+            product: nestedSelection(true),
+          },
+          ...paginateQuery(args),
+        },
+      }),
+      type: [ProductRef],
+      resolve: (category) => {
+        return category.categoriesOnProducts.map((item) => item.product);
+      },
+    }),
   }),
 });
 
@@ -135,7 +136,7 @@ builder.queryType({
       },
     }),
     users: t.prismaField({
-      type: ["User"],
+      type: [UserRef],
       resolve: async (query, root, args, ctx, info): Promise<User[]> => {
         return prisma.user.findMany({
           ...query,
@@ -143,7 +144,7 @@ builder.queryType({
       },
     }),
     products: t.prismaField({
-      type: ["Product"],
+      type: [ProductRef],
       args: paginateArgs(),
       resolve: async (query, root, args, ctx, info): Promise<Product[]> => {
         return prisma.product.findMany({
@@ -153,7 +154,7 @@ builder.queryType({
       },
     }),
     categories: t.prismaField({
-      type: ["Category"],
+      type: [CategoryRef],
       args: paginateArgs(),
       resolve: async (query, root, args, ctx, info): Promise<Category[]> => {
         return prisma.category.findMany({
