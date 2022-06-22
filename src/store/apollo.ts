@@ -3,28 +3,17 @@ import {
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
+import { HttpLink } from "@apollo/client/link/http";
 import { useMemo } from "react";
 
 let apolloClient: ApolloClient<NormalizedCacheObject>;
 
-function createIsomorphicLink() {
-  if (typeof window === "undefined") {
-    // server
-    const { SchemaLink } = require("@apollo/client/link/schema");
-    const schema = require("../graphql/schema");
-    // console.log(schema);
-    return new SchemaLink({ schema });
-  } else {
-    // client
-    const { HttpLink } = require("@apollo/client/link/http");
-    return new HttpLink({ uri: "/api/graphql" });
-  }
-}
-
 function createApolloClient(): ApolloClient<NormalizedCacheObject> {
   return new ApolloClient({
     ssrMode: typeof window === "undefined",
-    link: createIsomorphicLink(),
+    link: new HttpLink({
+      uri: process.env.NEXT_PUBLIC_GRAPHQL_API_URL,
+    }),
     cache: new InMemoryCache(),
   });
 }

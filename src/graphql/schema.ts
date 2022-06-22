@@ -183,4 +183,6 @@ function paginateQuery(args: {
   };
 }
 
-export const schema = builder.toSchema({});
+const schema = builder.toSchema({});
+
+export default schema;

@@ -1,21 +1,29 @@
-import type { NextPage } from "next";
-import Image from "next/image";
+import type { GetServerSideProps, GetStaticProps, NextPage } from "next";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Fragment } from "react";
-import { useGetCategoriesWithProductsQuery } from "../graphql/__generated__/resolvers-types";
+import {
+  Category,
+  GetCategoriesWithProductsDocument,
+  useGetCategoriesWithProductsQuery,
+} from "../graphql/__generated__/resolvers-types";
 import ProductItemHome from "../components/ProductItem/ProductItemHome";
+import { initializeApollo } from "../store/apollo";
 
-const Home: NextPage = () => {
-  const { data: session, status } = useSession();
+interface Props {
+  categories: Category[];
+}
 
-  const { loading, error, data } = useGetCategoriesWithProductsQuery({
-    variables: {
-      categoryLimit: 10,
-      categoryOffset: 0,
-      productLimit: 4,
-      productOffset: 0,
-    },
-  });
+const Home: NextPage<Props> = ({ categories }) => {
+  // const { data: session, status } = useSession();
+
+  // const { loading, error, data } = useGetCategoriesWithProductsQuery({
+  //   variables: {
+  //     categoryLimit: 10,
+  //     categoryOffset: 0,
+  //     productLimit: 4,
+  //     productOffset: 0,
+  //   },
+  // });
 
   // if (session) {
   //   return (
@@ -31,7 +39,7 @@ const Home: NextPage = () => {
 
   return (
     <div>
-      {data?.categories.map((category) => (
+      {categories.map((category) => (
         <div key={category.id}>
           <div>{category.name}</div>
           <div className="product-list flex">
@@ -53,6 +61,26 @@ const Home: NextPage = () => {
       ))}
     </div>
   );
+};
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const client = initializeApollo(null);
+  const { data } = await client.query({
+    query: GetCategoriesWithProductsDocument,
+    variables: {
+      categoryLimit: 10,
+      categoryOffset: 0,
+      productLimit: 4,
+      productOffset: 0,
+    },
+  });
+
+  return {
+    props: {
+      categories: data.categories,
+    },
+    revalidate: 10 * 60, // seconds
+  };
 };
 
 export default Home;
