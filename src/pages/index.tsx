@@ -1,6 +1,6 @@
 import type { GetStaticProps, NextPage } from "next";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { Fragment, useCallback, useEffect, useMemo } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -9,6 +9,7 @@ import {
   Category,
   GetCategoriesWithProductsDocument,
   useGetCategoriesWithProductsQuery,
+  useGetProductsByCategoryIdLazyQuery,
 } from "../graphql/__generated__/resolvers-types";
 import ProductItemHome from "../components/ProductItem/ProductItemHome";
 import { initializeApollo } from "../store/apollo";
@@ -18,13 +19,15 @@ interface Props {
   categories: Category[];
 }
 
-const Home: NextPage<Props> = ({ categories }) => {
+const Home: NextPage<Props> = ({ categories = [] }) => {
   // const { data: session, status } = useSession();
+
+  const [data, setData] = useState<Category[]>([]);
 
   const {
     loading,
     error,
-    data: fetchData,
+    data: fetchCategoryData,
     fetchMore,
   } = useGetCategoriesWithProductsQuery({
     variables: {
@@ -33,46 +36,77 @@ const Home: NextPage<Props> = ({ categories }) => {
       productLimit: 5,
       productOffset: 0,
     },
-    // fetchPolicy: "no-cache",
-    // notifyOnNetworkStatusChange: true,
+    notifyOnNetworkStatusChange: true,
   });
 
-  console.log(
-    "fetchData",
-    fetchData?.categories.map((item) => item.name)
-  );
+  const [
+    fetchProducts,
+    { data: fetchProductData, fetchMore: fetchMoreProducts },
+  ] = useGetProductsByCategoryIdLazyQuery({
+    variables: {
+      categoryId: "",
+      productLimit: 5,
+      productOffset: 0,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
 
-  const data = useMemo(() => {
-    if (fetchData) {
-      return [...fetchData.categories];
+  const handleFetchMoreProduct = (categoryId: string) => {
+    const categoryData = data.find((item) => item.id === categoryId);
+    console.log("categoryData", categoryData, fetchProductData);
+    if (!fetchProductData) {
+      fetchProducts({
+        variables: {
+          categoryId: categoryId,
+          productOffset: categoryData?.products.length || 0,
+        },
+      });
+    } else {
+      console.log("fetchMoreProducts", categoryData?.products.length);
+      fetchMoreProducts({
+        variables: {
+          categoryId: categoryId,
+          productOffset: categoryData?.products.length || 0,
+        },
+      });
     }
-    return [...categories];
-  }, [fetchData?.categories.map((item) => item.id)]);
+  };
+
+  useEffect(() => {
+    if (fetchCategoryData?.categories.map((item) => item.id)) {
+      setData(fetchCategoryData.categories);
+    } else {
+      setData(categories);
+    }
+  }, [categories, fetchCategoryData]);
+
+  useEffect(() => {
+    if (fetchProductData) {
+      const _data = data.map((category) => {
+        return {
+          ...category,
+          products:
+            category.id === fetchProductData.category.id
+              ? [...category.products, ...fetchProductData.category.products]
+              : category.products,
+        };
+      });
+      console.log("fetchProductData", fetchProductData, _data);
+      setData(_data);
+    }
+  }, [data, fetchProductData]);
 
   const isPageBottom = usePageBottom();
 
   useEffect(() => {
     if (isPageBottom) {
-      console.log("trigger fetchMore");
       fetchMore({
         variables: {
           categoryOffset: data.length,
         },
       });
     }
-  }, [isPageBottom]);
-
-  // if (session) {
-  //   return (
-  //     <>
-  //       Signed in as {session?.user?.email} <br />
-  //       <button onClick={() => signOut()}>Sign out</button>
-  //     </>
-  //   );
-  // }
-
-  // Not signed in <br />
-  //     <button onClick={() => signIn()}>Sign in</button>
+  }, [isPageBottom, data.length, fetchMore]);
 
   return (
     <div>
@@ -80,11 +114,18 @@ const Home: NextPage<Props> = ({ categories }) => {
         <div key={category.id}>
           <div>{category.name}</div>
           <div className="product-list">
-            <Swiper slidesPerView={3} spaceBetween={0} className="mySwiper">
+            <Swiper
+              slidesPerView={3}
+              spaceBetween={0}
+              className="mySwiper"
+              onReachEnd={() => handleFetchMoreProduct(category.id)}
+            >
               {category.products.map((product) => (
-                <Fragment key={product.id}>
+                <Fragment key={category.id + product.id}>
                   {product.variants.map((variant) => (
-                    <SwiperSlide key={variant.id}>
+                    <SwiperSlide
+                      key={`${category.id}-${product.id}-${variant.id}`}
+                    >
                       <ProductItemHome
                         name={product.name}
                         image={variant.image.source}
@@ -117,7 +158,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   return {
     props: {
-      categories: data.categories,
+      categories: data.categories || [],
     },
     revalidate: 10 * 60, // seconds
   };

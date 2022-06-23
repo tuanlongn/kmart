@@ -25,7 +25,6 @@ const ProductRef = builder.prismaObject("Product", {
       resolve: (product) => product.labelPrice,
     }),
     variants: t.relation("variants"),
-    images: t.relation("images"),
   }),
 });
 
@@ -153,9 +152,28 @@ builder.queryType({
         });
       },
     }),
+    category: t.prismaField({
+      type: CategoryRef,
+      args: {
+        id: t.arg({
+          type: "String",
+          required: true,
+          description: "categoryId",
+        }),
+      },
+      resolve: async (query, root, args, ctx, info): Promise<Category> => {
+        return prisma.category.findUnique({
+          ...query,
+          rejectOnNotFound: true,
+          where: { id: args.id },
+        });
+      },
+    }),
     categories: t.prismaField({
       type: [CategoryRef],
-      args: paginateArgs(),
+      args: {
+        ...paginateArgs(),
+      },
       resolve: async (query, root, args, ctx, info): Promise<Category[]> => {
         return prisma.category.findMany({
           ...query,

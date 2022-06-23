@@ -1,10 +1,9 @@
-query GetCategoriesWithProducts(
-  $categoryLimit: Int
-  $categoryOffset: Int
+query GetProductsByCategoryId(
+  $categoryId: String!
   $productLimit: Int
   $productOffset: Int
 ) {
-  categories(limit: $categoryLimit, offset: $categoryOffset) {
+  category(id: $categoryId) {
     id
     name
     description

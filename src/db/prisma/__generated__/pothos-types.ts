@@ -66,9 +66,9 @@ export default interface PrismaTypes {
         Include: Prisma.ProductInclude;
         Select: Prisma.ProductSelect;
         Where: Prisma.ProductWhereUniqueInput;
-        Fields: "cartItems" | "inventoryItems" | "images" | "variants" | "categoriesOnProducts";
-        RelationName: "cartItems" | "inventoryItems" | "images" | "variants" | "categoriesOnProducts";
-        ListRelations: "cartItems" | "inventoryItems" | "images" | "variants" | "categoriesOnProducts";
+        Fields: "cartItems" | "inventoryItems" | "variants" | "categoriesOnProducts";
+        RelationName: "cartItems" | "inventoryItems" | "variants" | "categoriesOnProducts";
+        ListRelations: "cartItems" | "inventoryItems" | "variants" | "categoriesOnProducts";
         Relations: {
             cartItems: {
                 Shape: CartItem[];
@@ -77,10 +77,6 @@ export default interface PrismaTypes {
             inventoryItems: {
                 Shape: InventoryItem[];
                 Types: PrismaTypes["InventoryItem"];
-            };
-            images: {
-                Shape: ProductImage[];
-                Types: PrismaTypes["ProductImage"];
             };
             variants: {
                 Shape: ProductVariant[];
@@ -146,14 +142,10 @@ export default interface PrismaTypes {
         Include: Prisma.ProductImageInclude;
         Select: Prisma.ProductImageSelect;
         Where: Prisma.ProductImageWhereUniqueInput;
-        Fields: "product" | "ProductVariant";
-        RelationName: "product" | "ProductVariant";
+        Fields: "ProductVariant";
+        RelationName: "ProductVariant";
         ListRelations: "ProductVariant";
         Relations: {
-            product: {
-                Shape: Product;
-                Types: PrismaTypes["Product"];
-            };
             ProductVariant: {
                 Shape: ProductVariant[];
                 Types: PrismaTypes["ProductVariant"];

@@ -21,7 +21,6 @@ type Order {
 type Product {
   description: String
   id: ID!
-  images: [ProductImage!]!
   labelPrice: Float
   name: String!
   variants: [ProductVariant!]!
@@ -42,6 +41,10 @@ type ProductVariant {
 
 type Query {
   categories(limit: Int, offset: Int): [Category!]!
+  category(
+    """categoryId"""
+    id: String!
+  ): Category!
   me: User!
   products(limit: Int, offset: Int): [Product!]!
   user(

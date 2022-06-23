@@ -61,7 +61,7 @@ async function main() {
 
   const categoryIds = categoryData.map((item) => item.id || cuid());
 
-  for (let i = 1; i <= 100; i++) {
+  for (let i = 1; i <= 1000; i++) {
     const productId = cuid();
 
     const randomCategoryId =
@@ -76,7 +76,6 @@ async function main() {
     for (let j = 1; j <= randomNumberBetween(1, 6); j++) {
       imageData.push({
         id: cuid(),
-        productId: productId,
         source: faker.image.food(280, 280, true),
         position: j,
       });

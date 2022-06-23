@@ -9,14 +9,10 @@ query GetProducts($limit: Int, $offset: Int) {
       image {
         id
         source
+        position
       }
       title
       price
-    }
-    images {
-      id
-      position
-      source
     }
   }
 }

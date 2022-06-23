@@ -24,6 +24,13 @@ function createApolloClient(): ApolloClient<NormalizedCacheObject> {
                 return [...existing, ...incoming];
               },
             },
+            // category: {
+            //   keyArgs: [],
+            //   merge(existing, incoming, args) {
+            //     console.log({ existing, incoming, args });
+            //     return incoming;
+            //   },
+            // },
           },
         },
       },
