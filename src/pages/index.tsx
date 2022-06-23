@@ -4,6 +4,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
+import { ArrowRight as ArrowRightIcon } from "react-feather";
 
 import {
   Category,
@@ -20,7 +21,7 @@ interface Props {
 }
 
 const Home: NextPage<Props> = ({ categories = [] }) => {
-  // const { data: session, status } = useSession();
+  const { data: session, status } = useSession();
 
   const [data, setData] = useState<Category[]>([]);
 
@@ -92,7 +93,7 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
         };
       });
       console.log("fetchProductData", fetchProductData, _data);
-      setData(_data);
+      // setData(_data);
     }
   }, [data, fetchProductData]);
 
@@ -111,11 +112,16 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
   return (
     <div>
       {data.map((category) => (
-        <div key={category.id}>
-          <div>{category.name}</div>
+        <div key={category.id} className="mb-4">
+          <div className="pl-2 pb-1 flex items-center">
+            <span className="text-lg font-semibold">{category.name}</span>
+            <div className="ml-2.5 rounded-full bg-gray-100 p-0.5">
+              <ArrowRightIcon color="#2f363d" size={14} />
+            </div>
+          </div>
           <div className="product-list">
             <Swiper
-              slidesPerView={3}
+              slidesPerView={2.5}
               spaceBetween={0}
               className="mySwiper"
               onReachEnd={() => handleFetchMoreProduct(category.id)}

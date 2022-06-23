@@ -85,7 +85,7 @@ async function main() {
       id: productId,
       name: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
-      labelPrice: Number(faker.commerce.price(10, 20)),
+      labelPrice: Number(faker.commerce.price(10, 20)) * 1000,
     });
 
     const imagesIds = imageData.map((item) => item.id || cuid());
@@ -95,7 +95,7 @@ async function main() {
     productVariantData.push({
       productId: productId,
       imageId: randomImageId,
-      price: Number(faker.commerce.price(10, 20)),
+      price: Number(faker.commerce.price(10, 20)) * 1000,
       title: faker.commerce.productAdjective(),
     });
   }
