@@ -15,13 +15,13 @@ export default function ProductItemHome({
   labelPrice,
 }: Props) {
   return (
-    <div className="group relative p-2">
+    <div className="group relative box-border p-4 border-4">
       <div className="">
         <Image
           src={image}
           alt={name}
-          width={180}
-          height={100}
+          width={200}
+          height={200}
           className="rounded-md"
         />
       </div>

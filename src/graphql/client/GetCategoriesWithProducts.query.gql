@@ -5,14 +5,14 @@ query GetCategoriesWithProducts(
   $productOffset: Int
 ) {
   categories(limit: $categoryLimit, offset: $categoryOffset) {
-    description
     id
     name
+    description
     products(limit: $productLimit, offset: $productOffset) {
-      description
       id
-      labelPrice
       name
+      labelPrice
+      description
       variants {
         id
         title

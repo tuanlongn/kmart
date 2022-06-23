@@ -14,7 +14,20 @@ function createApolloClient(): ApolloClient<NormalizedCacheObject> {
     link: new HttpLink({
       uri: process.env.NEXT_PUBLIC_GRAPHQL_API_URL,
     }),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            categories: {
+              keyArgs: false,
+              merge(existing = [], incoming) {
+                return [...existing, ...incoming];
+              },
+            },
+          },
+        },
+      },
+    }),
   });
 }
 

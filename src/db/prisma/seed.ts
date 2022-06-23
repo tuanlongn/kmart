@@ -33,7 +33,24 @@ async function main() {
     },
     {
       id: cuid(),
-      name: "Hoa quả",
+      name: "Category 1",
+    },
+    {
+      id: cuid(),
+      name: "Category 2",
+    },
+    {
+      id: cuid(),
+      name: "Category 3",
+    },
+    {
+      id: cuid(),
+      name: "Category 4",
+    },
+
+    {
+      id: cuid(),
+      name: "Category 5",
     },
   ];
   const productData: Prisma.ProductCreateManyInput[] = [];
@@ -56,7 +73,7 @@ async function main() {
       assignedBy: "seed",
     });
 
-    for (let j = 1; j <= randomNumberBetween(4, 6); j++) {
+    for (let j = 1; j <= randomNumberBetween(1, 6); j++) {
       imageData.push({
         id: cuid(),
         productId: productId,

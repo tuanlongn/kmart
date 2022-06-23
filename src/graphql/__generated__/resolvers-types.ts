@@ -110,7 +110,7 @@ export type GetCategoriesWithProductsQueryVariables = Exact<{
 }>;
 
 
-export type GetCategoriesWithProductsQuery = { __typename?: 'Query', categories: Array<{ __typename?: 'Category', description?: string | null, id: string, name: string, products: Array<{ __typename?: 'Product', description?: string | null, id: string, labelPrice?: number | null, name: string, variants: Array<{ __typename?: 'ProductVariant', id: string, title?: string | null, price: number, image: { __typename?: 'ProductImage', id: string, source: string } }> }> }> };
+export type GetCategoriesWithProductsQuery = { __typename?: 'Query', categories: Array<{ __typename?: 'Category', id: string, name: string, description?: string | null, products: Array<{ __typename?: 'Product', id: string, name: string, labelPrice?: number | null, description?: string | null, variants: Array<{ __typename?: 'ProductVariant', id: string, title?: string | null, price: number, image: { __typename?: 'ProductImage', id: string, source: string } }> }> }> };
 
 export type GetProductsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']>;
@@ -124,14 +124,14 @@ export type GetProductsQuery = { __typename?: 'Query', products: Array<{ __typen
 export const GetCategoriesWithProductsDocument = gql`
     query GetCategoriesWithProducts($categoryLimit: Int, $categoryOffset: Int, $productLimit: Int, $productOffset: Int) {
   categories(limit: $categoryLimit, offset: $categoryOffset) {
-    description
     id
     name
+    description
     products(limit: $productLimit, offset: $productOffset) {
-      description
       id
-      labelPrice
       name
+      labelPrice
+      description
       variants {
         id
         title
