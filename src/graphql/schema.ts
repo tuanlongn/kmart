@@ -1,6 +1,12 @@
 import { builder } from "./builder";
 import prisma from "../db/prisma";
-import { Category, Product, User } from "@prisma/client";
+import {
+  CartItem,
+  CartItemStatus,
+  Category,
+  Product,
+  User,
+} from "@prisma/client";
 
 const UserRef = builder.prismaObject("User", {
   findUnique: (user) => ({ id: user.id }),
@@ -38,6 +44,7 @@ builder.prismaObject("ProductVariant", {
     }),
     price: t.exposeFloat("price"),
     image: t.relation("image"),
+    product: t.relation("product"),
   }),
 });
 
@@ -77,12 +84,11 @@ const CategoryRef = builder.prismaObject("Category", {
   }),
 });
 
-builder.prismaObject("CartItem", {
+const CartItemRef = builder.prismaObject("CartItem", {
   findUnique: (item) => ({ id: item.id }),
   fields: (t) => ({
     id: t.exposeID("id"),
     user: t.relation("user"),
-    product: t.relation("product"),
     productVariant: t.relation("productVariant"),
   }),
 });
@@ -101,24 +107,23 @@ builder.prismaObject("Order", {
 
 builder.queryType({
   fields: (t) => ({
-    me: t.prismaField({
-      type: "User",
-      authScopes: {
-        logged: true,
-      },
-      resolve: async (query, root, args, ctx, info): Promise<User> => {
-        return prisma.user.findUnique({
-          ...query,
-          rejectOnNotFound: true,
-          where: { id: ctx.userId },
-        });
-      },
-    }),
+    // me: t.prismaField({
+    //   type: "User",
+    //   authScopes: {
+    //     logged: true,
+    //   },
+    //   resolve: async (query, root, args, ctx, info): Promise<User> => {
+    //     return prisma.user.findUnique({
+    //       ...query,
+    //       rejectOnNotFound: true,
+    //       where: { id: ctx.userId },
+    //     });
+    //   },
+    // }),
     user: t.prismaField({
-      type: "User",
+      type: UserRef,
       args: {
-        id: t.arg({
-          type: "String",
+        id: t.arg.string({
           required: true,
           description: "userId",
         }),
@@ -155,8 +160,7 @@ builder.queryType({
     category: t.prismaField({
       type: CategoryRef,
       args: {
-        id: t.arg({
-          type: "String",
+        id: t.arg.string({
           required: true,
           description: "categoryId",
         }),
@@ -181,7 +185,101 @@ builder.queryType({
         });
       },
     }),
+    myCart: t.prismaField({
+      type: [CartItemRef],
+      authScopes: {
+        logged: true,
+      },
+      resolve: async (query, root, args, ctx, info): Promise<CartItem[]> => {
+        return prisma.cartItem.findMany({
+          ...query,
+          where: { userId: ctx.userId, status: CartItemStatus.HOLD },
+        });
+      },
+    }),
   }),
+});
+
+builder.mutationType({});
+
+builder.mutationField("addCartItem", (t) => {
+  return t.prismaField({
+    type: CartItemRef,
+    args: {
+      variantId: t.arg.string({
+        required: true,
+        description: "ProductVariantId",
+      }),
+      quantity: t.arg.int({
+        required: true,
+        description: "Quantity",
+      }),
+    },
+    authScopes: {
+      logged: true,
+    },
+    resolve: async (query, root, args, ctx, info): Promise<CartItem> => {
+      const inventoryCount = await prisma.inventoryItem.count({
+        where: {
+          productVariantId: args.variantId,
+        },
+      });
+
+      const existCartItem = await prisma.cartItem.findFirst({
+        where: {
+          userId: ctx.userId,
+          productVariantId: args.variantId,
+          status: CartItemStatus.HOLD,
+        },
+      });
+
+      if (existCartItem) {
+        if (inventoryCount < existCartItem.quantity + args.quantity) {
+          throw new Error("Not enough quantity in inventory");
+        }
+      } else {
+        if (inventoryCount < args.quantity) {
+          throw new Error("Not enough quantity in inventory");
+        }
+      }
+
+      try {
+        let cartItem: CartItem;
+        if (existCartItem) {
+          cartItem = await prisma.cartItem.update({
+            where: {
+              id: existCartItem.id,
+            },
+            data: {
+              quantity: existCartItem.quantity + args.quantity,
+            },
+          });
+        } else {
+          cartItem = await prisma.cartItem.create({
+            data: {
+              user: {
+                connect: {
+                  id: ctx.userId,
+                },
+              },
+              productVariant: {
+                connect: {
+                  id: args.variantId,
+                },
+              },
+              quantity: args.quantity,
+              status: CartItemStatus.HOLD,
+              addAt: new Date(),
+            },
+          });
+        }
+        return cartItem;
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
+    },
+  });
 });
 
 function paginateArgs() {

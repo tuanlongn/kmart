@@ -79,8 +79,6 @@ model Product {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  cartItems            CartItem[]
-  inventoryItems       InventoryItem[]
   variants             ProductVariant[]
   categoriesOnProducts CategoriesOnProducts[]
 
@@ -130,12 +128,9 @@ model ProductImage {
 
 model InventoryItem {
   id               String         @id @default(cuid())
-  sku              String         @unique
-  product          Product        @relation(fields: [productId], references: [id])
-  productId        String         @map("product_id")
+  sku              String?        @unique
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
   productVariantId String         @map("product_variant_id")
-  price            Float
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime       @updatedAt @map("updated_at")
 
@@ -151,18 +146,17 @@ model CartItem {
   id               String         @id @default(cuid())
   user             User           @relation(fields: [userId], references: [id])
   userId           String         @map("user_id")
-  product          Product        @relation(fields: [productId], references: [id])
-  productId        String         @map("product_id")
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
   productVariantId String         @map("product_variant_id")
   quantity         Int
+  price            Float?
   status           CartItemStatus @default(HOLD)
   addAt            DateTime       @map("add_at")
 
   order   Order?  @relation(fields: [orderId], references: [id])
   orderId String?
 
-  @@unique([userId, productId])
+  @@index([userId, productVariantId, status])
   @@map("cart_items")
 }
 

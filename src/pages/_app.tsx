@@ -3,6 +3,8 @@ import { SessionProvider } from "next-auth/react";
 import { ApolloProvider } from "@apollo/client";
 import { useApollo } from "../store/apollo";
 import "../styles/globals.css";
+import FrontLayout from "../components/Layout/FrontLayout";
+import AuthProvider from "../components/AuthProvider";
 
 function MyApp({
   Component,
@@ -11,11 +13,13 @@ function MyApp({
   const client = useApollo(initialApolloState);
 
   return (
-    <SessionProvider session={session}>
-      <ApolloProvider client={client}>
-        <Component {...pageProps} />
-      </ApolloProvider>
-    </SessionProvider>
+    <ApolloProvider client={client}>
+      <AuthProvider>
+        <FrontLayout>
+          <Component {...pageProps} />
+        </FrontLayout>
+      </AuthProvider>
+    </ApolloProvider>
   );
 }
 

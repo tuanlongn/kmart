@@ -1,0 +1,19 @@
+query GetMyCart {
+  myCart {
+    id
+    productVariant {
+      id
+      title
+      price
+      image {
+        id
+        source
+      }
+      product {
+        id
+        name
+        labelPrice
+      }
+    }
+  }
+}

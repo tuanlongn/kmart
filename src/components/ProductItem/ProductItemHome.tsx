@@ -7,6 +7,7 @@ interface Props {
   price: number;
   labelPrice?: number | null;
   image: string;
+  onAddCart: () => void;
 }
 
 export default function ProductItemHome({
@@ -14,6 +15,7 @@ export default function ProductItemHome({
   price,
   image,
   labelPrice,
+  onAddCart,
 }: Props) {
   return (
     <div className="p-1.5">
@@ -25,8 +27,10 @@ export default function ProductItemHome({
           height={200}
           className="rounded-md"
         />
-
-        <div className="rounded-full hover:bg-green-200 text-white bg-green-100 shadow-sm absolute bottom-5 right-3.5 p-1">
+        <div
+          className="rounded-full hover:bg-green-200 text-white bg-green-100 shadow-sm absolute bottom-5 right-3.5 p-1"
+          onClick={onAddCart}
+        >
           <PlusIcon color="#11999E" size={20} />
         </div>
       </div>

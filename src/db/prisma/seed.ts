@@ -11,6 +11,7 @@ async function main() {
   await prisma.$queryRaw`TRUNCATE TABLE categories_on_products;`;
   await prisma.$queryRaw`TRUNCATE TABLE products;`;
   await prisma.$queryRaw`TRUNCATE TABLE inventory_items;`;
+  await prisma.$queryRaw`TRUNCATE TABLE cart_items;`;
   await prisma.$queryRaw`TRUNCATE TABLE orders;`;
 
   console.log(`Start seeding ...`);
@@ -58,6 +59,7 @@ async function main() {
     [];
   const productVariantData: Prisma.ProductVariantCreateManyInput[] = [];
   const imageData: Prisma.ProductImageCreateManyInput[] = [];
+  const inventoryItemData: Prisma.InventoryItemCreateManyInput[] = [];
 
   const categoryIds = categoryData.map((item) => item.id || cuid());
 
@@ -92,12 +94,20 @@ async function main() {
     const randomImageId =
       imagesIds[Math.floor(Math.random() * imagesIds.length)];
 
+    const variantId = cuid();
     productVariantData.push({
+      id: variantId,
       productId: productId,
       imageId: randomImageId,
       price: Number(faker.commerce.price(10, 20)) * 1000,
       title: faker.commerce.productAdjective(),
     });
+
+    for (let m = 1; m <= randomNumberBetween(2, 5); m++) {
+      inventoryItemData.push({
+        productVariantId: variantId,
+      });
+    }
   }
   await prisma.$transaction([
     prisma.category.createMany({ data: categoryData, skipDuplicates: true }),
@@ -111,6 +121,10 @@ async function main() {
       skipDuplicates: true,
     }),
     prisma.productImage.createMany({ data: imageData, skipDuplicates: true }),
+    prisma.inventoryItem.createMany({
+      data: inventoryItemData,
+      skipDuplicates: true,
+    }),
   ]);
   console.log(`Seeding finished.`);
 }

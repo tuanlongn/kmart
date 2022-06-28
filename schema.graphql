@@ -1,6 +1,5 @@
 type CartItem {
   id: ID!
-  product: Product!
   productVariant: ProductVariant!
   user: User!
 }
@@ -10,6 +9,16 @@ type Category {
   id: ID!
   name: String!
   products(limit: Int, offset: Int): [Product!]!
+}
+
+type Mutation {
+  addCartItem(
+    """Quantity"""
+    quantity: Int!
+
+    """ProductVariantId"""
+    variantId: String!
+  ): CartItem!
 }
 
 type Order {
@@ -36,6 +45,7 @@ type ProductVariant {
   id: ID!
   image: ProductImage!
   price: Float!
+  product: Product!
   title: String
 }
 
@@ -45,7 +55,7 @@ type Query {
     """categoryId"""
     id: String!
   ): Category!
-  me: User!
+  myCart: [CartItem!]!
   products(limit: Int, offset: Int): [Product!]!
   user(
     """userId"""

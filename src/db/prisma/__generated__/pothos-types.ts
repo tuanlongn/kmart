@@ -66,18 +66,10 @@ export default interface PrismaTypes {
         Include: Prisma.ProductInclude;
         Select: Prisma.ProductSelect;
         Where: Prisma.ProductWhereUniqueInput;
-        Fields: "cartItems" | "inventoryItems" | "variants" | "categoriesOnProducts";
-        RelationName: "cartItems" | "inventoryItems" | "variants" | "categoriesOnProducts";
-        ListRelations: "cartItems" | "inventoryItems" | "variants" | "categoriesOnProducts";
+        Fields: "variants" | "categoriesOnProducts";
+        RelationName: "variants" | "categoriesOnProducts";
+        ListRelations: "variants" | "categoriesOnProducts";
         Relations: {
-            cartItems: {
-                Shape: CartItem[];
-                Types: PrismaTypes["CartItem"];
-            };
-            inventoryItems: {
-                Shape: InventoryItem[];
-                Types: PrismaTypes["InventoryItem"];
-            };
             variants: {
                 Shape: ProductVariant[];
                 Types: PrismaTypes["ProductVariant"];
@@ -158,14 +150,10 @@ export default interface PrismaTypes {
         Include: Prisma.InventoryItemInclude;
         Select: Prisma.InventoryItemSelect;
         Where: Prisma.InventoryItemWhereUniqueInput;
-        Fields: "product" | "productVariant";
-        RelationName: "product" | "productVariant";
+        Fields: "productVariant";
+        RelationName: "productVariant";
         ListRelations: never;
         Relations: {
-            product: {
-                Shape: Product;
-                Types: PrismaTypes["Product"];
-            };
             productVariant: {
                 Shape: ProductVariant;
                 Types: PrismaTypes["ProductVariant"];
@@ -178,17 +166,13 @@ export default interface PrismaTypes {
         Include: Prisma.CartItemInclude;
         Select: Prisma.CartItemSelect;
         Where: Prisma.CartItemWhereUniqueInput;
-        Fields: "user" | "product" | "productVariant" | "order";
-        RelationName: "user" | "product" | "productVariant" | "order";
+        Fields: "user" | "productVariant" | "order";
+        RelationName: "user" | "productVariant" | "order";
         ListRelations: never;
         Relations: {
             user: {
                 Shape: User;
                 Types: PrismaTypes["User"];
-            };
-            product: {
-                Shape: Product;
-                Types: PrismaTypes["Product"];
             };
             productVariant: {
                 Shape: ProductVariant;
