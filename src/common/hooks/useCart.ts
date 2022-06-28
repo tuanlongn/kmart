@@ -1,16 +1,20 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
-  CartItem,
   useAddToCartMutation,
   useGetMyCartQuery,
 } from "../../graphql/__generated__/resolvers-types";
 
 export default function useCart() {
-  const { data: fetchData, refetch } = useGetMyCartQuery({});
+  const {
+    data: fetchData,
+    loading: fetchingData,
+    refetch,
+  } = useGetMyCartQuery({});
 
-  const [addToCart, { data: newCartItem }] = useAddToCartMutation({
-    onCompleted: () => refetch({}),
-  });
+  const [addToCart, { data: newCartItem, loading: addingCartItem }] =
+    useAddToCartMutation({
+      onCompleted: () => refetch({}),
+    });
 
   const total = useMemo(() => {
     return fetchData
@@ -20,5 +24,15 @@ export default function useCart() {
       : 0;
   }, [fetchData]);
 
-  return { cartData: fetchData?.myCart || [], total, addToCart };
+  const loading = useMemo(
+    () => fetchingData || addingCartItem,
+    [fetchingData, addingCartItem]
+  );
+
+  return {
+    cartData: fetchData?.myCart || [],
+    total,
+    addToCart,
+    loading,
+  };
 }

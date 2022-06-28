@@ -1,0 +1,10 @@
+mutation UpdateCartItem($id: String!, $quantity: Int!) {
+  updateCartItem(id: $id, quantity: $quantity) {
+    id
+    productVariant {
+      id
+      price
+      title
+    }
+  }
+}

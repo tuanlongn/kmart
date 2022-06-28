@@ -282,6 +282,89 @@ builder.mutationField("addCartItem", (t) => {
   });
 });
 
+builder.mutationField("updateCartItem", (t) => {
+  return t.prismaField({
+    type: CartItemRef,
+    args: {
+      id: t.arg.string({
+        required: true,
+        description: "CartItemId",
+      }),
+      quantity: t.arg.int({
+        required: true,
+        description: "Quantity",
+      }),
+    },
+    authScopes: {
+      logged: true,
+    },
+    resolve: async (query, root, args, ctx, info): Promise<CartItem> => {
+      const existCartItem = await prisma.cartItem.findFirst({
+        where: {
+          id: args.id,
+        },
+      });
+
+      if (!existCartItem) {
+        throw new Error("Cart item not exists");
+      }
+
+      const inventoryCount = await prisma.inventoryItem.count({
+        where: {
+          productVariantId: existCartItem.productVariantId,
+        },
+      });
+
+      if (inventoryCount < args.quantity) {
+        throw new Error("Not enough quantity in inventory");
+      }
+
+      try {
+        const cartItem = await prisma.cartItem.update({
+          where: {
+            id: existCartItem.id,
+          },
+          data: {
+            quantity: existCartItem.quantity + args.quantity,
+          },
+        });
+        return cartItem;
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
+    },
+  });
+});
+
+builder.mutationField("removeCartItem", (t) => {
+  return t.field({
+    type: "Boolean",
+    args: {
+      id: t.arg.string({
+        required: true,
+        description: "cartItemId",
+      }),
+    },
+    authScopes: {
+      logged: true,
+    },
+    resolve: async (root, args, ctx) => {
+      try {
+        await prisma.cartItem.delete({
+          where: {
+            id: args.id,
+          },
+        });
+        return true;
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    },
+  });
+});
+
 function paginateArgs() {
   return builder.args((t) => ({
     limit: t.int(),

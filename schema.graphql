@@ -19,6 +19,17 @@ type Mutation {
     """ProductVariantId"""
     variantId: String!
   ): CartItem!
+  removeCartItem(
+    """cartItemId"""
+    id: String!
+  ): Boolean!
+  updateCartItem(
+    """CartItemId"""
+    id: String!
+
+    """Quantity"""
+    quantity: Int!
+  ): CartItem!
 }
 
 type Order {
