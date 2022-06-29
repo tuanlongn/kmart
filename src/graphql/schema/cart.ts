@@ -4,8 +4,8 @@ import prisma from "../../db/prisma";
 import { CartItemRef } from "../types";
 import { ZodError } from "zod";
 
-builder.queryField("myCart", (t) =>
-  t.prismaField({
+builder.queryField("myCart", (t) => {
+  return t.prismaField({
     type: [CartItemRef],
     authScopes: {
       logged: true,
@@ -16,8 +16,8 @@ builder.queryField("myCart", (t) =>
         where: { userId: ctx.userId, status: CartItemStatus.HOLD },
       });
     },
-  })
-);
+  });
+});
 
 builder.mutationField("addCartItem", (t) => {
   return t.prismaField({
@@ -161,7 +161,7 @@ builder.mutationField("updateCartItem", (t) => {
 });
 
 builder.mutationField("removeCartItem", (t) => {
-  return t.field({
+  return t.prismaField({
     type: CartItemRef,
     errors: {
       types: [ZodError, Error],
@@ -175,7 +175,7 @@ builder.mutationField("removeCartItem", (t) => {
     authScopes: {
       logged: true,
     },
-    resolve: async (root, args, ctx) => {
+    resolve: async (query, root, args, ctx, info) => {
       try {
         const result = await prisma.cartItem.delete({
           where: {

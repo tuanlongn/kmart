@@ -5,14 +5,24 @@ import {
   Plus as PlusIcon,
   Trash2 as RemoveIcon,
 } from "react-feather";
+
 import useCart from "../common/hooks/useCart";
-import { useAuth } from "./AuthProvider";
+import { OrderStatus } from "@prisma/client";
 
 type Props = {};
 
 export default function Cart({}: Props) {
-  const auth = useAuth();
-  const { cartData, totalPrice, updateCart, removeCart } = useCart();
+  const {
+    cartData,
+    totalPrice,
+    totalQuantity,
+    selected,
+    selectedQuantity,
+    handleSelectChange,
+    updateCart,
+    removeCart,
+    createOrder,
+  } = useCart();
 
   return (
     <div className="bg-white pt-5 flex flex-col h-screen">
@@ -25,8 +35,16 @@ export default function Cart({}: Props) {
                 key={item.id}
                 className="flex justify-between mb-3 pb-3 border-b-[1px] border-dashed border-gray-200"
               >
-                <div className="flex w-1/2">
-                  <div className="rounded-md bg-gray-100">
+                <div className="flex">
+                  <div className="flex">
+                    <div className="mr-3">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 bg-blue-100 rounded border-blue-300 focus:ring-blue-500"
+                        checked={selected.includes(item.id)}
+                        onChange={() => handleSelectChange(item.id)}
+                      />
+                    </div>
                     <Image
                       className="rounded-md"
                       src={item.productVariant.image.source}
@@ -44,7 +62,7 @@ export default function Cart({}: Props) {
                     </div>
                   </div>
                 </div>
-                <div className="flex w-1/2 flex-col items-end">
+                <div className="flex flex-col items-end">
                   <div className="flex items-center mb-3">
                     <div className="flex items-center">
                       <div
@@ -120,13 +138,29 @@ export default function Cart({}: Props) {
       </div>
 
       <div className="bg-white p-3 drop-shadow-2xl">
-        <div className="flex justify-end mb-3 font-semibold">
-          Tổng tiền: {new Intl.NumberFormat("vi-VN").format(totalPrice)}
-          <div className="text-xs mt-0 ml-0.5">đ</div>
+        <div className="flex justify-between">
+          <div className="">
+            {selectedQuantity}/{totalQuantity} sp đang chọn
+          </div>
+          <div className="flex justify-end mb-3 font-semibold">
+            Tổng tiền: {new Intl.NumberFormat("vi-VN").format(totalPrice)}
+            <div className="text-xs mt-0 ml-0.5">đ</div>
+          </div>
         </div>
-        <div className="bg-red-500 hover:bg-red-400 text-white uppercase font-bold py-3 px-4 border-b-4 border-red-700 hover:border-red-500 rounded-md text-center">
+        <button
+          className="w-full bg-red-500 hover:bg-red-400 text-white uppercase font-bold py-3 px-4 border-b-4 border-red-700 hover:border-red-500 rounded-md text-center"
+          onClick={() =>
+            createOrder({
+              variables: {
+                cartItemIDs: selected,
+                status: OrderStatus.PAID,
+              },
+            })
+          }
+          disabled={selected.length === 0}
+        >
           Thanh toán
-        </div>
+        </button>
       </div>
     </div>
   );

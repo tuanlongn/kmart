@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   useAddToCartMutation,
+  useCreateMyOrderMutation,
   useGetMyCartQuery,
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
@@ -65,18 +66,42 @@ export default function useCart() {
     }
   );
 
+  const [createOrder, { loading: creatingOrder }] = useCreateMyOrderMutation({
+    onCompleted: (data) => {
+      if (data.createMyOrder.__typename === "MutationCreateMyOrderSuccess") {
+        refetch();
+      } else if (data.createMyOrder.__typename === "LogicalError") {
+        console.warn(data.createMyOrder.message);
+      } else if (data.createMyOrder.__typename === "ArgumentError") {
+        console.warn(
+          data.createMyOrder.fieldErrors.map((e) => e.message).join(", ")
+        );
+      }
+    },
+  });
+
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const handleSelectChange = (itemId: string) => {
+    if (selected.includes(itemId)) {
+      setSelected(selected.filter((id) => id !== itemId));
+    } else {
+      setSelected([...selected, itemId]);
+    }
+  };
+
   const totalPrice = useMemo(() => {
     let total = 0;
     if (fetchedData) {
-      const priceList = fetchedData.myCart.map(
-        (item) => item.productVariant.price
-      );
+      const priceList = fetchedData.myCart
+        .filter((item) => selected.includes(item.id))
+        .map((item) => item.productVariant.price);
       if (priceList.length > 0) {
         total = priceList.reduce((a, b) => a + b);
       }
     }
     return total;
-  }, [fetchedData]);
+  }, [fetchedData, selected]);
 
   const totalQuantity = useMemo(() => {
     let total = 0;
@@ -89,11 +114,34 @@ export default function useCart() {
     return total;
   }, [fetchedData]);
 
+  const selectedQuantity = useMemo(() => {
+    let total = 0;
+    if (fetchedData) {
+      const quantityList = fetchedData.myCart
+        .filter((item) => selected.includes(item.id))
+        .map((item) => item.quantity);
+      if (quantityList.length > 0) {
+        total = quantityList.reduce((a, b) => a + b);
+      }
+    }
+    return total;
+  }, [fetchedData, selected]);
+
   const loading = useMemo(() => {
     return (
-      fetchingData || addingCartItem || updatingCartItem || removingCartItem
+      fetchingData ||
+      addingCartItem ||
+      updatingCartItem ||
+      removingCartItem ||
+      creatingOrder
     );
-  }, [fetchingData, addingCartItem, updatingCartItem, removingCartItem]);
+  }, [
+    fetchingData,
+    addingCartItem,
+    updatingCartItem,
+    removingCartItem,
+    creatingOrder,
+  ]);
 
   return {
     cartData: fetchedData?.myCart || [],
@@ -102,6 +150,10 @@ export default function useCart() {
     addToCart,
     updateCart,
     removeCart,
+    createOrder,
     loading,
+    selected,
+    selectedQuantity,
+    handleSelectChange,
   };
 }

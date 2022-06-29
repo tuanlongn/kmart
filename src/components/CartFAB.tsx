@@ -13,7 +13,14 @@ type Props = {
 
 export default function CartFAB({ openDetail }: Props) {
   const auth = useAuth();
-  const { cartData, totalPrice, totalQuantity, loading } = useCart();
+  const {
+    cartData,
+    totalPrice,
+    totalQuantity,
+    selectedQuantity,
+    loading,
+    createOrder,
+  } = useCart();
   const [cartIconTransform, setCartIconTransform] = useState(false);
 
   return (
@@ -57,11 +64,13 @@ export default function CartFAB({ openDetail }: Props) {
                   className=" flex items-center rounded-md bg-gray-200 hover:bg-gray-300"
                   onClick={() => setCartIconTransform(false)}
                 >
-                  <CollapseIcon strokeWidth={1} color="#2f363d" size={22} />
+                  <CollapseIcon strokeWidth={1} color="#2f363d" size={24} />
                 </div>
 
-                <div className="ml-6">
-                  <div>{totalQuantity} sản phẩm:</div>
+                <div className="ml-4">
+                  <div>
+                    {selectedQuantity}/{totalQuantity} sản phẩm:
+                  </div>
                   <div className="flex font-semibold text-xl">
                     {new Intl.NumberFormat("vi-VN").format(totalPrice)}
                     <div className="text-xs mt-0 ml-0.5">đ</div>
@@ -71,7 +80,7 @@ export default function CartFAB({ openDetail }: Props) {
 
               <div className="flex items-center">
                 <div
-                  className="rounded-md bg-white mr-8"
+                  className="rounded-md bg-white mr-6"
                   onClick={() => openDetail()}
                 >
                   <DetailIcon strokeWidth={1.5} color="#2f363d" size={28} />

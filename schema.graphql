@@ -33,6 +33,7 @@ type Mutation {
     """ProductVariantId"""
     variantId: String!
   ): MutationAddCartItemResult!
+  createMyOrder(cartItemIDs: [String!]!, status: String!): MutationCreateMyOrderResult!
   removeCartItem(
     """cartItemId"""
     id: String!
@@ -50,6 +51,12 @@ union MutationAddCartItemResult = ArgumentError | LogicalError | MutationAddCart
 
 type MutationAddCartItemSuccess {
   data: CartItem!
+}
+
+union MutationCreateMyOrderResult = ArgumentError | LogicalError | MutationCreateMyOrderSuccess
+
+type MutationCreateMyOrderSuccess {
+  data: Order!
 }
 
 union MutationRemoveCartItemResult = ArgumentError | LogicalError | MutationRemoveCartItemSuccess
@@ -100,6 +107,7 @@ type Query {
   ): Category!
   me: User!
   myCart: [CartItem!]!
+  myOrders(limit: Int, offset: Int): [Order!]!
   products(limit: Int, offset: Int): [Product!]!
   user(
     """userId"""

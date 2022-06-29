@@ -1,0 +1,18 @@
+mutation CreateMyOrder($cartItemIDs: [String!]!, $status: String!) {
+  createMyOrder(cartItemIDs: $cartItemIDs, status: $status) {
+    ... on MutationCreateMyOrderSuccess {
+      data {
+        id
+      }
+    }
+    ... on ArgumentError {
+      fieldErrors {
+        message
+        path
+      }
+    }
+    ... on LogicalError {
+      message
+    }
+  }
+}

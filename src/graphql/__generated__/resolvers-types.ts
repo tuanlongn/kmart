@@ -55,6 +55,7 @@ export type LogicalError = Error & {
 export type Mutation = {
   __typename?: 'Mutation';
   addCartItem: MutationAddCartItemResult;
+  createMyOrder: MutationCreateMyOrderResult;
   removeCartItem: MutationRemoveCartItemResult;
   updateCartItem: MutationUpdateCartItemResult;
 };
@@ -63,6 +64,12 @@ export type Mutation = {
 export type MutationAddCartItemArgs = {
   quantity: Scalars['Int'];
   variantId: Scalars['String'];
+};
+
+
+export type MutationCreateMyOrderArgs = {
+  cartItemIDs: Array<Scalars['String']>;
+  status: Scalars['String'];
 };
 
 
@@ -81,6 +88,13 @@ export type MutationAddCartItemResult = ArgumentError | LogicalError | MutationA
 export type MutationAddCartItemSuccess = {
   __typename?: 'MutationAddCartItemSuccess';
   data: CartItem;
+};
+
+export type MutationCreateMyOrderResult = ArgumentError | LogicalError | MutationCreateMyOrderSuccess;
+
+export type MutationCreateMyOrderSuccess = {
+  __typename?: 'MutationCreateMyOrderSuccess';
+  data: Order;
 };
 
 export type MutationRemoveCartItemResult = ArgumentError | LogicalError | MutationRemoveCartItemSuccess;
@@ -135,6 +149,7 @@ export type Query = {
   category: Category;
   me: User;
   myCart: Array<CartItem>;
+  myOrders: Array<Order>;
   products: Array<Product>;
   user: User;
   users: Array<User>;
@@ -149,6 +164,12 @@ export type QueryCategoriesArgs = {
 
 export type QueryCategoryArgs = {
   id: Scalars['String'];
+};
+
+
+export type QueryMyOrdersArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -182,6 +203,14 @@ export type AddToCartMutationVariables = Exact<{
 
 
 export type AddToCartMutation = { __typename?: 'Mutation', addCartItem: { __typename?: 'ArgumentError', fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string, path: Array<string> }> } | { __typename?: 'LogicalError', message: string } | { __typename?: 'MutationAddCartItemSuccess', data: { __typename?: 'CartItem', id: string } } };
+
+export type CreateMyOrderMutationVariables = Exact<{
+  cartItemIDs: Array<Scalars['String']> | Scalars['String'];
+  status: Scalars['String'];
+}>;
+
+
+export type CreateMyOrderMutation = { __typename?: 'Mutation', createMyOrder: { __typename?: 'ArgumentError', fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string, path: Array<string> }> } | { __typename?: 'LogicalError', message: string } | { __typename?: 'MutationCreateMyOrderSuccess', data: { __typename?: 'Order', id: string } } };
 
 export type GetCategoriesWithProductsQueryVariables = Exact<{
   categoryLimit?: InputMaybe<Scalars['Int']>;
@@ -278,6 +307,53 @@ export function useAddToCartMutation(baseOptions?: Apollo.MutationHookOptions<Ad
 export type AddToCartMutationHookResult = ReturnType<typeof useAddToCartMutation>;
 export type AddToCartMutationResult = Apollo.MutationResult<AddToCartMutation>;
 export type AddToCartMutationOptions = Apollo.BaseMutationOptions<AddToCartMutation, AddToCartMutationVariables>;
+export const CreateMyOrderDocument = gql`
+    mutation CreateMyOrder($cartItemIDs: [String!]!, $status: String!) {
+  createMyOrder(cartItemIDs: $cartItemIDs, status: $status) {
+    ... on MutationCreateMyOrderSuccess {
+      data {
+        id
+      }
+    }
+    ... on ArgumentError {
+      fieldErrors {
+        message
+        path
+      }
+    }
+    ... on LogicalError {
+      message
+    }
+  }
+}
+    `;
+export type CreateMyOrderMutationFn = Apollo.MutationFunction<CreateMyOrderMutation, CreateMyOrderMutationVariables>;
+
+/**
+ * __useCreateMyOrderMutation__
+ *
+ * To run a mutation, you first call `useCreateMyOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMyOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createMyOrderMutation, { data, loading, error }] = useCreateMyOrderMutation({
+ *   variables: {
+ *      cartItemIDs: // value for 'cartItemIDs'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useCreateMyOrderMutation(baseOptions?: Apollo.MutationHookOptions<CreateMyOrderMutation, CreateMyOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateMyOrderMutation, CreateMyOrderMutationVariables>(CreateMyOrderDocument, options);
+      }
+export type CreateMyOrderMutationHookResult = ReturnType<typeof useCreateMyOrderMutation>;
+export type CreateMyOrderMutationResult = Apollo.MutationResult<CreateMyOrderMutation>;
+export type CreateMyOrderMutationOptions = Apollo.BaseMutationOptions<CreateMyOrderMutation, CreateMyOrderMutationVariables>;
 export const GetCategoriesWithProductsDocument = gql`
     query GetCategoriesWithProducts($categoryLimit: Int, $categoryOffset: Int, $productLimit: Int, $productOffset: Int) {
   categories(limit: $categoryLimit, offset: $categoryOffset) {
