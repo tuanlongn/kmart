@@ -1151,6 +1151,11 @@
   resolved "https://registry.yarnpkg.com/@pothos/plugin-tracing/-/plugin-tracing-0.2.1.tgz#6fecd9d727fe7004e20dd4ac566e47441fa1856d"
   integrity sha512-TmUXE+rpVUiFEv8uH/VO2wHCWrS0g3wplYjX+kzTpG2bq9AIfynrGoGUROdXPNQuHxelTqr+QJ4iMoACdfal4g==
 
+"@pothos/plugin-validation@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@pothos/plugin-validation/-/plugin-validation-3.4.2.tgz#f0707d9145f3ec5ed60025d9e5025d6eff366db5"
+  integrity sha512-lCp2rp8wKZly/2OMNCFyGX9i2Z5OdHu28c20GEVW0YfXWJzS/piN5upm1XlzIRt6v6AtqrOwIPv4uyqtWOjCPA==
+
 "@prisma/client@^3.14.0":
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/@prisma/client/-/client-3.14.0.tgz#bb90405c012fcca11f4647d91153ed4c58f3bd48"
@@ -5619,3 +5624,8 @@ zen-observable@0.8.15:
   version "0.8.15"
   resolved "https://registry.yarnpkg.com/zen-observable/-/zen-observable-0.8.15.tgz#96415c512d8e3ffd920afd3889604e30b9eaac15"
   integrity sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ==
+
+zod@^3.17.3:
+  version "3.17.3"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.17.3.tgz#86abbc670ff0063a4588d85a4dcc917d6e4af2ba"
+  integrity sha512-4oKP5zvG6GGbMlqBkI5FESOAweldEhSOZ6LI6cG+JzUT7ofj1ZOC0PJudpQOpT1iqOFpYYtX5Pw0+o403y4bcg==

@@ -6,6 +6,7 @@ import TracingPlugin, {
 } from "@pothos/plugin-tracing";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import ErrorsPlugin from "@pothos/plugin-errors";
+import ValidationPlugin from "@pothos/plugin-validation";
 import { Prisma } from "@prisma/client";
 import PrismaTypes from "../db/prisma/__generated__/pothos-types";
 import prisma from "../db/prisma";
@@ -17,7 +18,13 @@ export const builder = new SchemaBuilder<{
   };
   PrismaTypes: PrismaTypes;
 }>({
-  plugins: [ScopeAuthPlugin, PrismaPlugin, TracingPlugin, ErrorsPlugin],
+  plugins: [
+    ScopeAuthPlugin,
+    PrismaPlugin,
+    TracingPlugin,
+    ErrorsPlugin,
+    ValidationPlugin,
+  ],
   authScopes: async (context) => {
     return {
       logged: !!context.userId,

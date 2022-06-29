@@ -1,6 +1,7 @@
 query GetMyCart {
   myCart {
     id
+    quantity
     productVariant {
       id
       title

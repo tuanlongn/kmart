@@ -15,10 +15,17 @@ export type Scalars = {
   Float: number;
 };
 
+export type ArgumentError = Error & {
+  __typename?: 'ArgumentError';
+  fieldErrors: Array<ZodFieldError>;
+  message: Scalars['String'];
+};
+
 export type CartItem = {
   __typename?: 'CartItem';
   id: Scalars['ID'];
   productVariant: ProductVariant;
+  quantity: Scalars['Int'];
   user: User;
 };
 
@@ -36,11 +43,20 @@ export type CategoryProductsArgs = {
   offset?: InputMaybe<Scalars['Int']>;
 };
 
+export type Error = {
+  message: Scalars['String'];
+};
+
+export type LogicalError = Error & {
+  __typename?: 'LogicalError';
+  message: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
-  addCartItem: CartItem;
-  removeCartItem: Scalars['Boolean'];
-  updateCartItem: CartItem;
+  addCartItem: MutationAddCartItemResult;
+  removeCartItem: MutationRemoveCartItemResult;
+  updateCartItem: MutationUpdateCartItemResult;
 };
 
 
@@ -58,6 +74,27 @@ export type MutationRemoveCartItemArgs = {
 export type MutationUpdateCartItemArgs = {
   id: Scalars['String'];
   quantity: Scalars['Int'];
+};
+
+export type MutationAddCartItemResult = ArgumentError | LogicalError | MutationAddCartItemSuccess;
+
+export type MutationAddCartItemSuccess = {
+  __typename?: 'MutationAddCartItemSuccess';
+  data: CartItem;
+};
+
+export type MutationRemoveCartItemResult = ArgumentError | LogicalError | MutationRemoveCartItemSuccess;
+
+export type MutationRemoveCartItemSuccess = {
+  __typename?: 'MutationRemoveCartItemSuccess';
+  data: CartItem;
+};
+
+export type MutationUpdateCartItemResult = ArgumentError | LogicalError | MutationUpdateCartItemSuccess;
+
+export type MutationUpdateCartItemSuccess = {
+  __typename?: 'MutationUpdateCartItemSuccess';
+  data: CartItem;
 };
 
 export type Order = {
@@ -96,6 +133,7 @@ export type Query = {
   __typename?: 'Query';
   categories: Array<Category>;
   category: Category;
+  me: User;
   myCart: Array<CartItem>;
   products: Array<Product>;
   user: User;
@@ -131,13 +169,19 @@ export type User = {
   orders: Array<Order>;
 };
 
+export type ZodFieldError = {
+  __typename?: 'ZodFieldError';
+  message: Scalars['String'];
+  path: Array<Scalars['String']>;
+};
+
 export type AddToCartMutationVariables = Exact<{
   variantId: Scalars['String'];
   quantity: Scalars['Int'];
 }>;
 
 
-export type AddToCartMutation = { __typename?: 'Mutation', addCartItem: { __typename?: 'CartItem', id: string, productVariant: { __typename?: 'ProductVariant', id: string, price: number, title?: string | null } } };
+export type AddToCartMutation = { __typename?: 'Mutation', addCartItem: { __typename?: 'ArgumentError', fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string, path: Array<string> }> } | { __typename?: 'LogicalError', message: string } | { __typename?: 'MutationAddCartItemSuccess', data: { __typename?: 'CartItem', id: string } } };
 
 export type GetCategoriesWithProductsQueryVariables = Exact<{
   categoryLimit?: InputMaybe<Scalars['Int']>;
@@ -152,7 +196,7 @@ export type GetCategoriesWithProductsQuery = { __typename?: 'Query', categories:
 export type GetMyCartQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMyCartQuery = { __typename?: 'Query', myCart: Array<{ __typename?: 'CartItem', id: string, productVariant: { __typename?: 'ProductVariant', id: string, title?: string | null, price: number, image: { __typename?: 'ProductImage', id: string, source: string }, product: { __typename?: 'Product', id: string, name: string, labelPrice?: number | null } } }> };
+export type GetMyCartQuery = { __typename?: 'Query', myCart: Array<{ __typename?: 'CartItem', id: string, quantity: number, productVariant: { __typename?: 'ProductVariant', id: string, title?: string | null, price: number, image: { __typename?: 'ProductImage', id: string, source: string }, product: { __typename?: 'Product', id: string, name: string, labelPrice?: number | null } } }> };
 
 export type GetProductsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']>;
@@ -176,7 +220,7 @@ export type RemoveCartItemMutationVariables = Exact<{
 }>;
 
 
-export type RemoveCartItemMutation = { __typename?: 'Mutation', removeCartItem: boolean };
+export type RemoveCartItemMutation = { __typename?: 'Mutation', removeCartItem: { __typename?: 'ArgumentError', fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string, path: Array<string> }> } | { __typename?: 'LogicalError', message: string } | { __typename?: 'MutationRemoveCartItemSuccess', data: { __typename?: 'CartItem', id: string } } };
 
 export type UpdateCartItemMutationVariables = Exact<{
   id: Scalars['String'];
@@ -184,17 +228,25 @@ export type UpdateCartItemMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCartItemMutation = { __typename?: 'Mutation', updateCartItem: { __typename?: 'CartItem', id: string, productVariant: { __typename?: 'ProductVariant', id: string, price: number, title?: string | null } } };
+export type UpdateCartItemMutation = { __typename?: 'Mutation', updateCartItem: { __typename?: 'ArgumentError', fieldErrors: Array<{ __typename?: 'ZodFieldError', message: string, path: Array<string> }> } | { __typename?: 'LogicalError', message: string } | { __typename?: 'MutationUpdateCartItemSuccess', data: { __typename?: 'CartItem', id: string } } };
 
 
 export const AddToCartDocument = gql`
     mutation AddToCart($variantId: String!, $quantity: Int!) {
   addCartItem(variantId: $variantId, quantity: $quantity) {
-    id
-    productVariant {
-      id
-      price
-      title
+    ... on MutationAddCartItemSuccess {
+      data {
+        id
+      }
+    }
+    ... on ArgumentError {
+      fieldErrors {
+        message
+        path
+      }
+    }
+    ... on LogicalError {
+      message
     }
   }
 }
@@ -286,6 +338,7 @@ export const GetMyCartDocument = gql`
     query GetMyCart {
   myCart {
     id
+    quantity
     productVariant {
       id
       title
@@ -436,7 +489,22 @@ export type GetProductsByCategoryIdLazyQueryHookResult = ReturnType<typeof useGe
 export type GetProductsByCategoryIdQueryResult = Apollo.QueryResult<GetProductsByCategoryIdQuery, GetProductsByCategoryIdQueryVariables>;
 export const RemoveCartItemDocument = gql`
     mutation RemoveCartItem($id: String!) {
-  removeCartItem(id: $id)
+  removeCartItem(id: $id) {
+    ... on MutationRemoveCartItemSuccess {
+      data {
+        id
+      }
+    }
+    ... on ArgumentError {
+      fieldErrors {
+        message
+        path
+      }
+    }
+    ... on LogicalError {
+      message
+    }
+  }
 }
     `;
 export type RemoveCartItemMutationFn = Apollo.MutationFunction<RemoveCartItemMutation, RemoveCartItemMutationVariables>;
@@ -468,11 +536,19 @@ export type RemoveCartItemMutationOptions = Apollo.BaseMutationOptions<RemoveCar
 export const UpdateCartItemDocument = gql`
     mutation UpdateCartItem($id: String!, $quantity: Int!) {
   updateCartItem(id: $id, quantity: $quantity) {
-    id
-    productVariant {
-      id
-      price
-      title
+    ... on MutationUpdateCartItemSuccess {
+      data {
+        id
+      }
+    }
+    ... on ArgumentError {
+      fieldErrors {
+        message
+        path
+      }
+    }
+    ... on LogicalError {
+      message
     }
   }
 }

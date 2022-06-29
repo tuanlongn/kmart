@@ -1,3 +1,18 @@
 mutation RemoveCartItem($id: String!) {
-  removeCartItem(id: $id)
+  removeCartItem(id: $id) {
+    ... on MutationRemoveCartItemSuccess {
+      data {
+        id
+      }
+    }
+    ... on ArgumentError {
+      fieldErrors {
+        message
+        path
+      }
+    }
+    ... on LogicalError {
+      message
+    }
+  }
 }

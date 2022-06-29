@@ -5,4 +5,4 @@ Object.keys(require.cache)
     delete require.cache[key];
   });
 
-module.exports = require('@boost/module').requireModule(require.resolve('../src/graphql/schema.ts'));
+module.exports = require('@boost/module').requireModule(require.resolve('../src/graphql/schema/index.ts'));

@@ -1,10 +1,18 @@
 mutation UpdateCartItem($id: String!, $quantity: Int!) {
   updateCartItem(id: $id, quantity: $quantity) {
-    id
-    productVariant {
-      id
-      price
-      title
+    ... on MutationUpdateCartItemSuccess {
+      data {
+        id
+      }
+    }
+    ... on ArgumentError {
+      fieldErrors {
+        message
+        path
+      }
+    }
+    ... on LogicalError {
+      message
     }
   }
 }

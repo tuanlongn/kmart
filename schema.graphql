@@ -1,6 +1,12 @@
+type ArgumentError implements Error {
+  fieldErrors: [ZodFieldError!]!
+  message: String!
+}
+
 type CartItem {
   id: ID!
   productVariant: ProductVariant!
+  quantity: Int!
   user: User!
 }
 
@@ -11,6 +17,14 @@ type Category {
   products(limit: Int, offset: Int): [Product!]!
 }
 
+interface Error {
+  message: String!
+}
+
+type LogicalError implements Error {
+  message: String!
+}
+
 type Mutation {
   addCartItem(
     """Quantity"""
@@ -18,18 +32,36 @@ type Mutation {
 
     """ProductVariantId"""
     variantId: String!
-  ): CartItem!
+  ): MutationAddCartItemResult!
   removeCartItem(
     """cartItemId"""
     id: String!
-  ): Boolean!
+  ): MutationRemoveCartItemResult!
   updateCartItem(
     """CartItemId"""
     id: String!
 
     """Quantity"""
     quantity: Int!
-  ): CartItem!
+  ): MutationUpdateCartItemResult!
+}
+
+union MutationAddCartItemResult = ArgumentError | LogicalError | MutationAddCartItemSuccess
+
+type MutationAddCartItemSuccess {
+  data: CartItem!
+}
+
+union MutationRemoveCartItemResult = ArgumentError | LogicalError | MutationRemoveCartItemSuccess
+
+type MutationRemoveCartItemSuccess {
+  data: CartItem!
+}
+
+union MutationUpdateCartItemResult = ArgumentError | LogicalError | MutationUpdateCartItemSuccess
+
+type MutationUpdateCartItemSuccess {
+  data: CartItem!
 }
 
 type Order {
@@ -66,6 +98,7 @@ type Query {
     """categoryId"""
     id: String!
   ): Category!
+  me: User!
   myCart: [CartItem!]!
   products(limit: Int, offset: Int): [Product!]!
   user(
@@ -79,4 +112,9 @@ type User {
   email: String!
   id: ID!
   orders: [Order!]!
+}
+
+type ZodFieldError {
+  message: String!
+  path: [String!]!
 }

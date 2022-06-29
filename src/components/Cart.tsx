@@ -1,12 +1,16 @@
 import React from "react";
 import Image from "next/image";
-import { Minus as MinusIcon, Plus as PlusIcon } from "react-feather";
+import {
+  Minus as MinusIcon,
+  Plus as PlusIcon,
+  Trash2 as RemoveIcon,
+} from "react-feather";
 import useCart from "../common/hooks/useCart";
 
 type Props = {};
 
 export default function Cart({}: Props) {
-  const { cartData, total } = useCart();
+  const { cartData, total, updateCart, removeCart } = useCart();
 
   return (
     <div className="bg-white pt-5 flex flex-col h-screen">
@@ -15,9 +19,12 @@ export default function Cart({}: Props) {
       <div className="grow overflow-y-auto p-3">
         {cartData.length > 0
           ? cartData.map((item) => (
-              <div key={item.id} className="flex justify-between mb-3">
+              <div
+                key={item.id}
+                className="flex justify-between mb-3 pb-3 border-b-[1px] border-dashed border-gray-200"
+              >
                 <div className="flex w-1/2">
-                  <div className="rounded-md bg-gray-100 w-14 h-14">
+                  <div className="rounded-md bg-gray-100">
                     <Image
                       className="rounded-md"
                       src={item.productVariant.image.source}
@@ -35,21 +42,69 @@ export default function Cart({}: Props) {
                     </div>
                   </div>
                 </div>
-                <div className="flex w-1/2 justify-between">
-                  <div className="flex items-start pl-2">
-                    <div className="rounded-full p-1 bg-gray-100">
-                      <MinusIcon strokeWidth={1.5} size={16} color="#2f363d" />
+                <div className="flex w-1/2 flex-col items-end">
+                  <div className="flex items-center mb-3">
+                    <div className="flex items-center">
+                      <div
+                        className="rounded-full p-1 bg-gray-100"
+                        onClick={() =>
+                          updateCart({
+                            variables: {
+                              id: item.id,
+                              quantity: item.quantity - 1,
+                            },
+                          })
+                        }
+                      >
+                        <MinusIcon
+                          strokeWidth={1.5}
+                          size={18}
+                          color="#2f363d"
+                        />
+                      </div>
+                      <div className="ml-2 mr-2">
+                        <input
+                          type="text"
+                          className="form-control block w-7 h-7 text-xs text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none text-center"
+                          defaultValue={item.quantity}
+                          onChange={(event) =>
+                            updateCart({
+                              variables: {
+                                id: item.id,
+                                quantity: Number(event.target.value),
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div
+                        className="rounded-full p-1 bg-gray-100"
+                        onClick={() =>
+                          updateCart({
+                            variables: {
+                              id: item.id,
+                              quantity: item.quantity + 1,
+                            },
+                          })
+                        }
+                      >
+                        <PlusIcon strokeWidth={1.5} size={18} color="#2f363d" />
+                      </div>
                     </div>
-                    <div className="ml-2 mr-2">
-                      <input
-                        type="text"
-                        className="form-control block w-6 text-sm text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                      />
-                    </div>
-                    <div className="rounded-full p-1 bg-gray-100">
-                      <PlusIcon strokeWidth={1.5} size={16} color="#2f363d" />
+                    <div
+                      className="ml-4 rounded-full p-1 bg-gray-100"
+                      onClick={() =>
+                        removeCart({
+                          variables: {
+                            id: item.id,
+                          },
+                        })
+                      }
+                    >
+                      <RemoveIcon strokeWidth={1.5} size={18} color="#2f363d" />
                     </div>
                   </div>
+
                   <div className="flex ml-3 text-sm">
                     {new Intl.NumberFormat("vi-VN").format(
                       item.productVariant.price
