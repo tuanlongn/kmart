@@ -6,11 +6,13 @@ import {
   Trash2 as RemoveIcon,
 } from "react-feather";
 import useCart from "../common/hooks/useCart";
+import { useAuth } from "./AuthProvider";
 
 type Props = {};
 
 export default function Cart({}: Props) {
-  const { cartData, total, updateCart, removeCart } = useCart();
+  const auth = useAuth();
+  const { cartData, totalPrice, updateCart, removeCart } = useCart();
 
   return (
     <div className="bg-white pt-5 flex flex-col h-screen">
@@ -119,10 +121,10 @@ export default function Cart({}: Props) {
 
       <div className="bg-white p-3 drop-shadow-2xl">
         <div className="flex justify-end mb-3 font-semibold">
-          Tổng tiền: {new Intl.NumberFormat("vi-VN").format(total)}
+          Tổng tiền: {new Intl.NumberFormat("vi-VN").format(totalPrice)}
           <div className="text-xs mt-0 ml-0.5">đ</div>
         </div>
-        <div className="bg-red-500 hover:bg-red-400 text-white uppercase font-bold py-3 px-4 border-b-4 border-red-700 hover:border-blue-500 rounded-md text-center">
+        <div className="bg-red-500 hover:bg-red-400 text-white uppercase font-bold py-3 px-4 border-b-4 border-red-700 hover:border-red-500 rounded-md text-center">
           Thanh toán
         </div>
       </div>

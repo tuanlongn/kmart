@@ -1,6 +1,6 @@
-import type { GetServerSideProps, GetStaticProps, NextPage } from "next";
-import { getProviders, signIn, signOut } from "next-auth/react";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import type { GetStaticProps, NextPage } from "next";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { useMediaQuery } from "usehooks-ts";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -15,8 +15,6 @@ import {
 import ProductItemHome from "../components/ProductItem/ProductItemHome";
 import { initializeApollo } from "../store/apollo";
 import usePageBottom from "../common/hooks/usePageBottom";
-import useModal from "../components/Modal/useModal";
-import Modal from "../components/Modal/Modal";
 import { useAuth } from "../components/AuthProvider";
 import useCart from "../common/hooks/useCart";
 
@@ -27,6 +25,22 @@ interface Props {
 const Home: NextPage<Props> = ({ categories = [] }) => {
   const auth = useAuth();
   const { cartData, addToCart } = useCart();
+
+  const match768 = useMediaQuery("(min-width: 768px)");
+  const match1024 = useMediaQuery("(min-width: 1024px)");
+  const match1180 = useMediaQuery("(min-width: 1180px)");
+
+  const slidesPerView = useMemo(() => {
+    if (match1180) {
+      return 5.5;
+    } else if (match1024) {
+      return 4.5;
+    } else if (match768) {
+      return 3.5;
+    } else {
+      return 2.5;
+    }
+  }, [match1180, match1024, match768]);
 
   const [data, setData] = useState<Category[]>([]);
 
@@ -39,7 +53,7 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
     variables: {
       categoryLimit: 5,
       categoryOffset: 0,
-      productLimit: 5,
+      productLimit: Math.floor(slidesPerView) + 1,
       productOffset: 0,
     },
     notifyOnNetworkStatusChange: true,
@@ -51,7 +65,7 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
   ] = useGetProductsByCategoryIdLazyQuery({
     variables: {
       categoryId: "",
-      productLimit: 5,
+      productLimit: Math.floor(slidesPerView) + 1,
       productOffset: 0,
     },
     notifyOnNetworkStatusChange: true,
@@ -114,10 +128,8 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
     }
   }, [isPageBottom, data.length, fetchMore]);
 
-  const [isLoginModalOpen, toogleLoginModal] = useModal(false);
-
   const handleAddCart = (variantId: string) => {
-    if (auth?.me) {
+    if (auth?.data?.me) {
       addToCart({
         variables: {
           variantId: variantId,
@@ -125,7 +137,7 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
         },
       });
     } else {
-      toogleLoginModal();
+      auth?.toogleLoginModal();
     }
   };
 
@@ -142,9 +154,8 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
             </div>
             <div className="product-list">
               <Swiper
-                slidesPerView={2.5}
+                slidesPerView={slidesPerView}
                 spaceBetween={0}
-                className="mySwiper"
                 onReachEnd={() => handleFetchMoreProduct(category.id)}
               >
                 {category.products.map((product) => (
@@ -169,17 +180,6 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
           </div>
         ))}
       </div>
-
-      <Modal isOpen={isLoginModalOpen} onClose={() => toogleLoginModal()}>
-        <div className="flex items-center justify-center h-screen">
-          <button
-            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 px-5 border-b-4 border-blue-700 hover:border-blue-500 rounded"
-            onClick={() => signIn("azure-ad")}
-          >
-            Đăng nhập với tài khoản Microsoft
-          </button>
-        </div>
-      </Modal>
     </>
   );
 };

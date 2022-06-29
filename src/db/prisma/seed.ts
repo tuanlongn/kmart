@@ -63,7 +63,7 @@ async function main() {
 
   const categoryIds = categoryData.map((item) => item.id || cuid());
 
-  for (let i = 1; i <= 1000; i++) {
+  for (let i = 1; i <= 5000; i++) {
     const productId = cuid();
 
     const randomCategoryId =

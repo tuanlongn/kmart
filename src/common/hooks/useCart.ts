@@ -65,12 +65,28 @@ export default function useCart() {
     }
   );
 
-  const total = useMemo(() => {
-    return fetchedData
-      ? fetchedData.myCart
-          .map((item) => item.productVariant.price)
-          .reduce((a, b) => a + b)
-      : 0;
+  const totalPrice = useMemo(() => {
+    let total = 0;
+    if (fetchedData) {
+      const priceList = fetchedData.myCart.map(
+        (item) => item.productVariant.price
+      );
+      if (priceList.length > 0) {
+        total = priceList.reduce((a, b) => a + b);
+      }
+    }
+    return total;
+  }, [fetchedData]);
+
+  const totalQuantity = useMemo(() => {
+    let total = 0;
+    if (fetchedData) {
+      const quantityList = fetchedData.myCart.map((item) => item.quantity);
+      if (quantityList.length > 0) {
+        total = quantityList.reduce((a, b) => a + b);
+      }
+    }
+    return total;
   }, [fetchedData]);
 
   const loading = useMemo(() => {
@@ -81,7 +97,8 @@ export default function useCart() {
 
   return {
     cartData: fetchedData?.myCart || [],
-    total,
+    totalPrice,
+    totalQuantity,
     addToCart,
     updateCart,
     removeCart,
