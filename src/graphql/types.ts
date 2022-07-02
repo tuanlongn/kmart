@@ -93,6 +93,7 @@ export const OrderRef = builder.prismaObject("Order", {
   fields: (t) => ({
     id: t.exposeID("id"),
     user: t.relation("user"),
+    items: t.relation("items"),
     status: t.field({
       type: "String",
       resolve: (order) => order.status,

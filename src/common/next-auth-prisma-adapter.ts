@@ -1,7 +1,6 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { Account } from "next-auth";
 import type { Adapter, AdapterSession, AdapterUser } from "next-auth/adapters";
-import { userInfo } from "os";
 
 export default function PrismaAdapter(prisma: PrismaClient): Adapter {
   return {
@@ -10,6 +9,8 @@ export default function PrismaAdapter(prisma: PrismaClient): Adapter {
         data: {
           name: user.name as string,
           email: user.email as string,
+          phone: user.phone as string,
+          image: user.image as string,
         },
       });
       return {
@@ -27,6 +28,7 @@ export default function PrismaAdapter(prisma: PrismaClient): Adapter {
             id: user.id,
             name: user.name,
             email: user.email,
+            image: user.image,
             emailVerified: user.createdAt,
             isAdmin: user.isAdmin,
           }
@@ -39,6 +41,7 @@ export default function PrismaAdapter(prisma: PrismaClient): Adapter {
             id: user.id,
             name: user.name,
             email: user.email,
+            image: user.image,
             emailVerified: user.createdAt,
             isAdmin: user.isAdmin,
           }
@@ -62,6 +65,7 @@ export default function PrismaAdapter(prisma: PrismaClient): Adapter {
             id: auth.user.id,
             name: auth.user.name,
             email: auth.user.email,
+            image: auth.user.image,
             emailVerified: auth.user.createdAt,
             isAdmin: auth.user.isAdmin,
           }
@@ -78,6 +82,7 @@ export default function PrismaAdapter(prisma: PrismaClient): Adapter {
         id: updatedUser.id,
         name: updatedUser.name,
         email: updatedUser.email,
+        image: updatedUser.image,
         emailVerified: updatedUser.createdAt,
       };
     },

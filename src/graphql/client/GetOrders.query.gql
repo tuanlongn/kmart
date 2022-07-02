@@ -1,0 +1,20 @@
+query GetOrders {
+  orders {
+    id
+    status
+    items {
+      id
+      quantity
+      productVariant {
+        id
+        title
+        price
+        product {
+          id
+          name
+          labelPrice
+        }
+      }
+    }
+  }
+}

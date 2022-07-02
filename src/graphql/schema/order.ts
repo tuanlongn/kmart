@@ -1,12 +1,7 @@
 import { z, ZodError } from "zod";
 import { OrderRef } from "./../types";
 import { builder } from "./../builder";
-import {
-  CartItemStatus,
-  Order,
-  OrderStatus,
-  PrismaClient,
-} from "@prisma/client";
+import { CartItemStatus, Order, OrderStatus } from "@prisma/client";
 import prisma from "../../db/prisma";
 import { paginateArgs, paginateQuery } from "../helpers";
 
@@ -23,7 +18,71 @@ builder.queryField("myOrders", (t) => {
       return prisma.order.findMany({
         ...query,
         ...paginateQuery(args),
-        where: { userId: ctx.userId },
+      });
+    },
+  });
+});
+
+builder.queryField("myOrder", (t) => {
+  return t.prismaField({
+    type: OrderRef,
+    authScopes: {
+      logged: true,
+    },
+    args: {
+      id: t.arg.string({
+        required: true,
+      }),
+    },
+    resolve: async (query, root, args, ctx, info): Promise<Order> => {
+      return prisma.order.findUnique({
+        ...query,
+        where: {
+          id_userId: {
+            id: args.id,
+            userId: ctx.userId,
+          },
+        },
+        rejectOnNotFound: true,
+      });
+    },
+  });
+});
+
+builder.queryField("order", (t) => {
+  return t.prismaField({
+    type: OrderRef,
+    authScopes: {
+      isAdmin: true,
+    },
+    args: {
+      id: t.arg.string({
+        required: true,
+      }),
+    },
+    resolve: async (query, root, args, ctx, info): Promise<Order> => {
+      return prisma.order.findUnique({
+        ...query,
+        where: { id: args.id },
+        rejectOnNotFound: true,
+      });
+    },
+  });
+});
+
+builder.queryField("orders", (t) => {
+  return t.prismaField({
+    type: [OrderRef],
+    authScopes: {
+      isAdmin: true,
+    },
+    args: {
+      ...paginateArgs(),
+    },
+    resolve: async (query, root, args, ctx, info): Promise<Order[]> => {
+      return prisma.order.findMany({
+        ...query,
+        ...paginateQuery(args),
       });
     },
   });

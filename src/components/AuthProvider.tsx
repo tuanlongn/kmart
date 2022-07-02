@@ -1,5 +1,5 @@
 import { User } from "next-auth";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import React, { useContext } from "react";
 import { useEffect, useState } from "react";
 import Modal from "./Modal/Modal";
@@ -13,6 +13,7 @@ type AuthData = {
 type AuthContext = {
   data: AuthData | null;
   toogleLoginModal: () => void;
+  logout: () => void;
 };
 
 type Props = {
@@ -35,8 +36,12 @@ export default function AuthProvider({ children }: Props) {
     getMyInfo();
   }, []);
 
+  const logout = () => {
+    signOut({ callbackUrl: process.env.NEXT_PUBLIC_URL });
+  };
+
   return (
-    <AuthContext.Provider value={{ data, toogleLoginModal }}>
+    <AuthContext.Provider value={{ data, toogleLoginModal, logout }}>
       {children}
 
       <Modal isOpen={isLoginModalOpen} onClose={() => toogleLoginModal()}>

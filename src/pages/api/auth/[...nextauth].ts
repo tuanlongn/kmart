@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-import { JWT } from "next-auth/jwt/types";
 import AzureADProvider from "next-auth/providers/azure-ad";
 import PrismaAdapter from "../../../common/next-auth-prisma-adapter";
 import prisma from "../../../db/prisma";

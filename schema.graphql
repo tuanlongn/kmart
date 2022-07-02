@@ -73,6 +73,7 @@ type MutationUpdateCartItemSuccess {
 
 type Order {
   id: ID!
+  items: [CartItem!]!
   status: String!
   user: User!
 }
@@ -107,7 +108,10 @@ type Query {
   ): Category!
   me: User!
   myCart: [CartItem!]!
+  myOrder(id: String!): Order!
   myOrders(limit: Int, offset: Int): [Order!]!
+  order(id: String!): Order!
+  orders(limit: Int, offset: Int): [Order!]!
   products(limit: Int, offset: Int): [Product!]!
   user(
     """userId"""

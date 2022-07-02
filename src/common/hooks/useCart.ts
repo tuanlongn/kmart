@@ -1,17 +1,29 @@
-import { useMemo, useState } from "react";
+import cuid from "cuid";
+import { useMemo } from "react";
+import { atom, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   useAddToCartMutation,
-  useCreateMyOrderMutation,
   useGetMyCartQuery,
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
 } from "../../graphql/__generated__/resolvers-types";
 
+export interface CartState {
+  selectedIDs: string[];
+}
+
+export const cartState = atom<CartState>({
+  key: "cart",
+  default: {
+    selectedIDs: [],
+  },
+});
+
 export default function useCart() {
   const {
     data: fetchedData,
     loading: fetchingData,
-    refetch,
+    refetch: refetchCart,
   } = useGetMyCartQuery({
     notifyOnNetworkStatusChange: true,
   });
@@ -19,7 +31,7 @@ export default function useCart() {
   const [addToCart, { loading: addingCartItem }] = useAddToCartMutation({
     onCompleted: (data) => {
       if (data.addCartItem.__typename === "MutationAddCartItemSuccess") {
-        refetch();
+        refetchCart();
       } else if (data.addCartItem.__typename === "LogicalError") {
         console.warn(data.addCartItem.message);
       } else if (data.addCartItem.__typename === "ArgumentError") {
@@ -36,7 +48,7 @@ export default function useCart() {
         if (
           data.updateCartItem.__typename === "MutationUpdateCartItemSuccess"
         ) {
-          refetch();
+          refetchCart();
         } else if (data.updateCartItem.__typename === "LogicalError") {
           console.warn(data.updateCartItem.message);
         } else if (data.updateCartItem.__typename === "ArgumentError") {
@@ -54,7 +66,7 @@ export default function useCart() {
         if (
           data.removeCartItem.__typename === "MutationRemoveCartItemSuccess"
         ) {
-          refetch();
+          refetchCart();
         } else if (data.removeCartItem.__typename === "LogicalError") {
           console.warn(data.removeCartItem.message);
         } else if (data.removeCartItem.__typename === "ArgumentError") {
@@ -66,27 +78,18 @@ export default function useCart() {
     }
   );
 
-  const [createOrder, { loading: creatingOrder }] = useCreateMyOrderMutation({
-    onCompleted: (data) => {
-      if (data.createMyOrder.__typename === "MutationCreateMyOrderSuccess") {
-        refetch();
-      } else if (data.createMyOrder.__typename === "LogicalError") {
-        console.warn(data.createMyOrder.message);
-      } else if (data.createMyOrder.__typename === "ArgumentError") {
-        console.warn(
-          data.createMyOrder.fieldErrors.map((e) => e.message).join(", ")
-        );
-      }
-    },
-  });
-
-  const [selected, setSelected] = useState<string[]>([]);
+  const { selectedIDs } = useRecoilValue(cartState);
+  const setCartState = useSetRecoilState(cartState);
 
   const handleSelectChange = (itemId: string) => {
-    if (selected.includes(itemId)) {
-      setSelected(selected.filter((id) => id !== itemId));
+    if (selectedIDs.includes(itemId)) {
+      setCartState((state) => ({
+        selectedIDs: selectedIDs.filter((id) => id !== itemId),
+      }));
     } else {
-      setSelected([...selected, itemId]);
+      setCartState((state) => ({
+        selectedIDs: [...selectedIDs, itemId],
+      }));
     }
   };
 
@@ -94,14 +97,14 @@ export default function useCart() {
     let total = 0;
     if (fetchedData) {
       const priceList = fetchedData.myCart
-        .filter((item) => selected.includes(item.id))
+        .filter((item) => selectedIDs.includes(item.id))
         .map((item) => item.productVariant.price);
       if (priceList.length > 0) {
         total = priceList.reduce((a, b) => a + b);
       }
     }
     return total;
-  }, [fetchedData, selected]);
+  }, [fetchedData, selectedIDs]);
 
   const totalQuantity = useMemo(() => {
     let total = 0;
@@ -118,30 +121,20 @@ export default function useCart() {
     let total = 0;
     if (fetchedData) {
       const quantityList = fetchedData.myCart
-        .filter((item) => selected.includes(item.id))
+        .filter((item) => selectedIDs.includes(item.id))
         .map((item) => item.quantity);
       if (quantityList.length > 0) {
         total = quantityList.reduce((a, b) => a + b);
       }
     }
     return total;
-  }, [fetchedData, selected]);
+  }, [fetchedData, selectedIDs]);
 
   const loading = useMemo(() => {
     return (
-      fetchingData ||
-      addingCartItem ||
-      updatingCartItem ||
-      removingCartItem ||
-      creatingOrder
+      fetchingData || addingCartItem || updatingCartItem || removingCartItem
     );
-  }, [
-    fetchingData,
-    addingCartItem,
-    updatingCartItem,
-    removingCartItem,
-    creatingOrder,
-  ]);
+  }, [fetchingData, addingCartItem, updatingCartItem, removingCartItem]);
 
   return {
     cartData: fetchedData?.myCart || [],
@@ -150,9 +143,9 @@ export default function useCart() {
     addToCart,
     updateCart,
     removeCart,
-    createOrder,
+    refetchCart,
     loading,
-    selected,
+    selected: selectedIDs,
     selectedQuantity,
     handleSelectChange,
   };

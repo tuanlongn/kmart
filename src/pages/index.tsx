@@ -1,4 +1,5 @@
 import type { GetStaticProps, NextPage } from "next";
+import { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -23,6 +24,7 @@ interface Props {
 }
 
 const Home: NextPage<Props> = ({ categories = [] }) => {
+  const router = useRouter();
   const auth = useAuth();
   const { cartData, addToCart } = useCart();
 
@@ -32,11 +34,11 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
 
   const slidesPerView = useMemo(() => {
     if (match1180) {
-      return 5.5;
+      return 10;
     } else if (match1024) {
-      return 4.5;
+      return 5.5;
     } else if (match768) {
-      return 3.5;
+      return 4.5;
     } else {
       return 2.5;
     }
@@ -142,45 +144,44 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
   };
 
   return (
-    <>
-      <div>
-        {data.map((category) => (
-          <div key={category.id} className="mb-4">
-            <div className="pl-2 pb-1 flex items-center">
-              <span className="text-lg font-semibold">{category.name}</span>
-              <div className="ml-2.5 rounded-full bg-gray-100 p-0.5">
-                <ArrowRightIcon color="#2f363d" size={14} />
-              </div>
-            </div>
-            <div className="product-list">
-              <Swiper
-                slidesPerView={slidesPerView}
-                spaceBetween={0}
-                onReachEnd={() => handleFetchMoreProduct(category.id)}
-              >
-                {category.products.map((product) => (
-                  <Fragment key={category.id + product.id}>
-                    {product.variants.map((variant) => (
-                      <SwiperSlide
-                        key={`${category.id}-${product.id}-${variant.id}`}
-                      >
-                        <ProductItemHome
-                          name={product.name}
-                          image={variant.image.source}
-                          labelPrice={product.labelPrice}
-                          price={variant.price}
-                          onAddCart={() => handleAddCart(variant.id)}
-                        />
-                      </SwiperSlide>
-                    ))}
-                  </Fragment>
-                ))}
-              </Swiper>
+    <div>
+      {data.map((category) => (
+        <div key={category.id} className="mb-4">
+          <div className="pl-2 pb-1 flex items-center">
+            <span className="text-lg font-semibold">{category.name}</span>
+            <div className="ml-2.5 rounded-full bg-gray-100 p-0.5">
+              <ArrowRightIcon color="#2f363d" size={14} />
             </div>
           </div>
-        ))}
-      </div>
-    </>
+          <div className="product-list">
+            <Swiper
+              slidesPerView={slidesPerView}
+              spaceBetween={0}
+              onReachEnd={() => handleFetchMoreProduct(category.id)}
+            >
+              {category.products.map((product) => (
+                <Fragment key={category.id + product.id}>
+                  {product.variants.map((variant) => (
+                    <SwiperSlide
+                      key={`${category.id}-${product.id}-${variant.id}`}
+                    >
+                      <ProductItemHome
+                        name={product.name}
+                        image={variant.image.source}
+                        labelPrice={product.labelPrice}
+                        price={variant.price}
+                        onAddCart={() => handleAddCart(variant.id)}
+                        onDetail={() => router.push(`/product/${product.id}`)}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Fragment>
+              ))}
+            </Swiper>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 };
 

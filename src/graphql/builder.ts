@@ -12,9 +12,10 @@ import PrismaTypes from "../db/prisma/__generated__/pothos-types";
 import prisma from "../db/prisma";
 
 export const builder = new SchemaBuilder<{
-  Context: { user: any; userId: string };
+  Context: { userId: string; isAdmin: boolean };
   AuthScopes: {
     logged: boolean;
+    isAdmin: boolean;
   };
   PrismaTypes: PrismaTypes;
 }>({
@@ -28,6 +29,7 @@ export const builder = new SchemaBuilder<{
   authScopes: async (context) => {
     return {
       logged: !!context.userId,
+      isAdmin: context.isAdmin,
     };
   },
   scopeAuthOptions: {

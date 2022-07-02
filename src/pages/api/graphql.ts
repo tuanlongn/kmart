@@ -12,7 +12,7 @@ const server = createServer<{
   schema: schema,
   context: async ({ req }) => {
     const token = await getToken({ req, secret });
-    return { userId: token?.sub };
+    return { userId: token?.sub, isAdmin: token?.isAdmin };
   },
 });
 

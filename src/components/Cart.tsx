@@ -8,6 +8,7 @@ import {
 
 import useCart from "../common/hooks/useCart";
 import { OrderStatus } from "@prisma/client";
+import useOrder from "../common/hooks/useOrder";
 
 type Props = {};
 
@@ -21,8 +22,8 @@ export default function Cart({}: Props) {
     handleSelectChange,
     updateCart,
     removeCart,
-    createOrder,
   } = useCart();
+  const { createOrder } = useOrder();
 
   return (
     <div className="bg-white pt-5 flex flex-col h-screen">

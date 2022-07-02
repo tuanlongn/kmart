@@ -5,6 +5,7 @@ import {
   ChevronRight as CollapseIcon,
 } from "react-feather";
 import useCart from "../common/hooks/useCart";
+import useOrder from "../common/hooks/useOrder";
 import { useAuth } from "./AuthProvider";
 
 type Props = {
@@ -13,22 +14,18 @@ type Props = {
 
 export default function CartFAB({ openDetail }: Props) {
   const auth = useAuth();
-  const {
-    cartData,
-    totalPrice,
-    totalQuantity,
-    selectedQuantity,
-    loading,
-    createOrder,
-  } = useCart();
+  const { cartData, totalPrice, totalQuantity, selectedQuantity, loading } =
+    useCart();
+  const { createOrder } = useOrder();
+
   const [cartIconTransform, setCartIconTransform] = useState(false);
 
   return (
     <div
-      className={`transition-all fixed z-10 rounded-md bg-white drop-shadow ${
+      className={`transition duration-1000 fixed z-10 bg-white drop-shadow-2xl ${
         cartIconTransform
-          ? "bottom-3 right-3 left-3 p-2"
-          : "bottom-6 right-5 p-3"
+          ? "rounded-md p-2 bottom-3 right-3 left-3"
+          : "rounded-full p-4 bottom-6 right-5"
       }`}
       onClick={() =>
         auth?.data?.me && !cartIconTransform ? setCartIconTransform(true) : null
@@ -36,7 +33,7 @@ export default function CartFAB({ openDetail }: Props) {
     >
       {loading ? (
         <svg
-          className="animate-spin h-5 w-5"
+          className="animate-spin h-6 w-6"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -93,9 +90,9 @@ export default function CartFAB({ openDetail }: Props) {
             </div>
           ) : (
             <>
-              <CartIcon strokeWidth={1} color="#2f363d" size={32} />
+              <CartIcon strokeWidth={1} color="#2f363d" size={36} />
               {cartData.length > 0 && (
-                <div className="rounded-full bg-red-500 absolute top-2 right-2 w-4 h-4 border-2 border-white"></div>
+                <div className="rounded-full bg-red-500 absolute top-4 right-4 w-4 h-4 border-2 border-white"></div>
               )}
             </>
           )}
