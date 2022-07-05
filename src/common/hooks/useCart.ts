@@ -17,6 +17,16 @@ export const cartState = atom<CartState>({
   default: {
     selectedIDs: [],
   },
+  effects: [
+    ({ onSet }) => {
+      onSet(async (state) => {
+        await localStorage.setItem(
+          "cart:selectedIDs",
+          JSON.stringify(state.selectedIDs)
+        );
+      });
+    },
+  ],
 });
 
 export default function useCart() {

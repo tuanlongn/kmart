@@ -1,5 +1,13 @@
-mutation CreateMyOrder($cartItemIDs: [String!]!, $status: String!) {
-  createMyOrder(cartItemIDs: $cartItemIDs, status: $status) {
+mutation CreateMyOrder(
+  $cartItemIDs: [String!]!
+  $payments: [PaymentInput!]!
+  $status: String!
+) {
+  createMyOrder(
+    cartItemIDs: $cartItemIDs
+    payments: $payments
+    status: $status
+  ) {
     ... on MutationCreateMyOrderSuccess {
       data {
         id

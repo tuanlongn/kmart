@@ -1,4 +1,4 @@
-import type { GetStaticProps, NextPage } from "next";
+import type { GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
@@ -13,6 +13,7 @@ import {
   useGetCategoriesWithProductsQuery,
   useGetProductsByCategoryIdLazyQuery,
 } from "../graphql/__generated__/resolvers-types";
+import FrontLayout from "../components/Layout/FrontLayout";
 import ProductItemHome from "../components/ProductItem/ProductItemHome";
 import { initializeApollo } from "../store/apollo";
 import usePageBottom from "../common/hooks/usePageBottom";
@@ -23,7 +24,7 @@ interface Props {
   categories: Category[];
 }
 
-const Home: NextPage<Props> = ({ categories = [] }) => {
+export default function Home({ categories = [] }: Props) {
   const router = useRouter();
   const auth = useAuth();
   const { cartData, addToCart } = useCart();
@@ -183,7 +184,9 @@ const Home: NextPage<Props> = ({ categories = [] }) => {
       ))}
     </div>
   );
-};
+}
+
+Home.Layout = FrontLayout;
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const client = initializeApollo(null);
@@ -204,5 +207,3 @@ export const getStaticProps: GetStaticProps = async (context) => {
     revalidate: 10 * 60, // seconds
   };
 };
-
-export default Home;

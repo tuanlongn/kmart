@@ -1,4 +1,5 @@
-import { ZodError, ZodFormattedError } from "zod";
+import { PaymentTypes } from "@prisma/client";
+import { z, ZodError, ZodFormattedError } from "zod";
 import { builder } from "./builder";
 import { paginateArgs, paginateQuery } from "./helpers";
 
@@ -94,10 +95,35 @@ export const OrderRef = builder.prismaObject("Order", {
     id: t.exposeID("id"),
     user: t.relation("user"),
     items: t.relation("items"),
-    status: t.field({
-      type: "String",
-      resolve: (order) => order.status,
+    transactions: t.relation("transactions"),
+    status: t.exposeString("status"),
+    createdAt: t.field({
+      type: "Date",
+      resolve: (order) => order.createdAt,
     }),
+  }),
+});
+
+export const TransactionRef = builder.prismaObject("Transaction", {
+  findUnique: (transaction) => ({ id: transaction.id }),
+  fields: (t) => ({
+    id: t.exposeID("id"),
+    user: t.relation("user"),
+    order: t.relation("order"),
+    paymentType: t.exposeString("paymentType"),
+    value: t.exposeFloat("value"),
+  }),
+});
+
+export const PaymentInput = builder.inputType("PaymentInput", {
+  fields: (t) => ({
+    type: t.string({
+      required: true,
+      validate: {
+        schema: z.nativeEnum(PaymentTypes),
+      },
+    }),
+    value: t.float({ required: true }),
   }),
 });
 
@@ -125,6 +151,13 @@ function flattenErrors(
 
   return errors;
 }
+
+builder.scalarType("Date", {
+  serialize: (n) => n,
+  parseValue: (n) => {
+    return n as Date;
+  },
+});
 
 /**
  * ERROR CUSTOM TYPES

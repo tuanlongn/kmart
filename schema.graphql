@@ -17,6 +17,8 @@ type Category {
   products(limit: Int, offset: Int): [Product!]!
 }
 
+scalar Date
+
 interface Error {
   message: String!
 }
@@ -33,7 +35,7 @@ type Mutation {
     """ProductVariantId"""
     variantId: String!
   ): MutationAddCartItemResult!
-  createMyOrder(cartItemIDs: [String!]!, status: String!): MutationCreateMyOrderResult!
+  createMyOrder(cartItemIDs: [String!]!, payments: [PaymentInput!]!, status: String!): MutationCreateMyOrderResult!
   removeCartItem(
     """cartItemId"""
     id: String!
@@ -72,10 +74,17 @@ type MutationUpdateCartItemSuccess {
 }
 
 type Order {
+  createdAt: Date!
   id: ID!
   items: [CartItem!]!
   status: String!
+  transactions: [Transaction!]!
   user: User!
+}
+
+input PaymentInput {
+  type: String!
+  value: Float!
 }
 
 type Product {
@@ -118,6 +127,14 @@ type Query {
     id: String!
   ): User!
   users: [User!]!
+}
+
+type Transaction {
+  id: ID!
+  order: Order!
+  paymentType: String!
+  user: User!
+  value: Float!
 }
 
 type User {

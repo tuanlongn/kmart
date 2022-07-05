@@ -1,7 +1,12 @@
 import { z, ZodError } from "zod";
-import { OrderRef } from "./../types";
+import { OrderRef, PaymentInput } from "./../types";
 import { builder } from "./../builder";
-import { CartItemStatus, Order, OrderStatus } from "@prisma/client";
+import {
+  CartItemStatus,
+  Order,
+  OrderStatus,
+  PaymentTypes,
+} from "@prisma/client";
 import prisma from "../../db/prisma";
 import { paginateArgs, paginateQuery } from "../helpers";
 
@@ -107,7 +112,12 @@ builder.mutationField("createMyOrder", (t) => {
           schema: z.nativeEnum(OrderStatus),
         },
       }),
+      payments: t.arg({
+        type: [PaymentInput],
+        required: true,
+      }),
     },
+    validate: (args) => true,
     resolve: async (query, root, args, ctx, info): Promise<Order> => {
       const cartItemCount = await prisma.cartItem.count({
         where: {
@@ -118,6 +128,7 @@ builder.mutationField("createMyOrder", (t) => {
           status: CartItemStatus.HOLD,
         },
       });
+      console.log(cartItemCount);
 
       if (cartItemCount !== args.cartItemIDs.length) {
         throw new Error("cartItemIDs invalid");
@@ -133,6 +144,15 @@ builder.mutationField("createMyOrder", (t) => {
             },
             status: args.status as OrderStatus,
           },
+        });
+
+        await prismaTransaction.transaction.createMany({
+          data: args.payments.map((payment) => ({
+            userId: ctx.userId,
+            orderId: order.id,
+            paymentType: payment.type as PaymentTypes,
+            value: payment.value,
+          })),
         });
 
         await Promise.all(

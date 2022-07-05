@@ -1,18 +1,24 @@
 import React from "react";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import {
+  ArrowLeft as BackIcon,
   Minus as MinusIcon,
   Plus as PlusIcon,
   Trash2 as RemoveIcon,
 } from "react-feather";
 
 import useCart from "../common/hooks/useCart";
-import { OrderStatus } from "@prisma/client";
+
 import useOrder from "../common/hooks/useOrder";
 
-type Props = {};
+type Props = {
+  isPage?: boolean;
+};
 
-export default function Cart({}: Props) {
+export default function Cart({ isPage = false }: Props) {
+  const router = useRouter();
+
   const {
     cartData,
     totalPrice,
@@ -26,15 +32,32 @@ export default function Cart({}: Props) {
   const { createOrder } = useOrder();
 
   return (
-    <div className="bg-white pt-5 flex flex-col h-screen">
-      <div className="font-semibold text-lg mb-4 ml-3">Giỏ hàng</div>
+    <div className="flex flex-col h-screen bg-white">
+      <div
+        className={`flex items-center px-4 py-5 border-b-[1px]  ${
+          isPage && ""
+        }`}
+      >
+        {isPage && (
+          <div className="-ml-1" onClick={() => router.back()}>
+            <BackIcon strokeWidth={1.5} size={28} color="#2f363d" />
+          </div>
+        )}
+        <div
+          className={`grow flex items-center font-semibold text-xl ${
+            isPage && "ml-3"
+          }`}
+        >
+          Giỏ hàng
+        </div>
+      </div>
 
-      <div className="grow overflow-y-auto p-3">
+      <div className="grow overflow-y-auto p-4">
         {cartData.length > 0
           ? cartData.map((item) => (
               <div
                 key={item.id}
-                className="flex justify-between mb-3 pb-3 border-b-[1px] border-dashed border-gray-200"
+                className="flex justify-between mb-3 pb-3 border-b-[1px] border-dashed border-gray-200 last:border-b-0"
               >
                 <div className="flex">
                   <div className="flex">
@@ -138,7 +161,7 @@ export default function Cart({}: Props) {
           : "Bạn chưa chọn sản phẩm nào."}
       </div>
 
-      <div className="bg-white p-3 drop-shadow-2xl">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white drop-shadow-2xl">
         <div className="flex justify-between">
           <div className="">
             {selectedQuantity}/{totalQuantity} sp đang chọn
@@ -149,15 +172,8 @@ export default function Cart({}: Props) {
           </div>
         </div>
         <button
-          className="w-full bg-red-500 hover:bg-red-400 text-white uppercase font-bold py-3 px-4 border-b-4 border-red-700 hover:border-red-500 rounded-md text-center"
-          onClick={() =>
-            createOrder({
-              variables: {
-                cartItemIDs: selected,
-                status: OrderStatus.PAID,
-              },
-            })
-          }
+          className="w-full bg-red-500 hover:bg-red-400 text-white uppercase font-bold py-3 px-4 border-b-4 border-red-700 hover:border-red-500 disabled:opacity-75 rounded-md text-center"
+          onClick={() => router.push("/payment")}
           disabled={selected.length === 0}
         >
           Thanh toán

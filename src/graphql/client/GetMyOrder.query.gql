@@ -14,7 +14,16 @@ query GetMyOrder($id: String!) {
           name
           labelPrice
         }
+        image {
+          id
+          source
+        }
       }
     }
+    transactions {
+      paymentType
+      value
+    }
+    createdAt
   }
 }

@@ -1,11 +1,12 @@
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import {
   ShoppingBag as CartIcon,
   Maximize as DetailIcon,
   ChevronRight as CollapseIcon,
 } from "react-feather";
+
 import useCart from "../common/hooks/useCart";
-import useOrder from "../common/hooks/useOrder";
 import { useAuth } from "./AuthProvider";
 
 type Props = {
@@ -13,10 +14,11 @@ type Props = {
 };
 
 export default function CartFAB({ openDetail }: Props) {
+  const router = useRouter();
   const auth = useAuth();
   const { cartData, totalPrice, totalQuantity, selectedQuantity, loading } =
     useCart();
-  const { createOrder } = useOrder();
+  console.log({ selectedQuantity });
 
   const [cartIconTransform, setCartIconTransform] = useState(false);
 
@@ -83,7 +85,11 @@ export default function CartFAB({ openDetail }: Props) {
                   <DetailIcon strokeWidth={1.5} color="#2f363d" size={28} />
                 </div>
 
-                <button className="bg-red-500 hover:bg-red-400 text-white uppercase font-bold py-3 px-4 border-b-4 border-red-700 hover:border-red-500 rounded-md text-center">
+                <button
+                  className="bg-red-500 hover:bg-red-400 text-white uppercase font-bold py-3 px-4 border-b-4 border-red-700 hover:border-red-500 disabled:opacity-75 rounded-md text-center"
+                  onClick={() => router.push("/payment")}
+                  disabled={!(selectedQuantity > 0)}
+                >
                   Thanh toán
                 </button>
               </div>

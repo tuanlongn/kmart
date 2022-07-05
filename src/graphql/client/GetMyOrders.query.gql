@@ -14,7 +14,16 @@ query GetMyOrders($limit: Int, $offset: Int) {
           name
           labelPrice
         }
+        image {
+          id
+          source
+        }
       }
     }
+    transactions {
+      paymentType
+      value
+    }
+    createdAt
   }
 }

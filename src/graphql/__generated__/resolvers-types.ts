@@ -13,6 +13,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Date: any;
 };
 
 export type ArgumentError = Error & {
@@ -69,6 +70,7 @@ export type MutationAddCartItemArgs = {
 
 export type MutationCreateMyOrderArgs = {
   cartItemIDs: Array<Scalars['String']>;
+  payments: Array<PaymentInput>;
   status: Scalars['String'];
 };
 
@@ -113,10 +115,17 @@ export type MutationUpdateCartItemSuccess = {
 
 export type Order = {
   __typename?: 'Order';
+  createdAt: Scalars['Date'];
   id: Scalars['ID'];
   items: Array<CartItem>;
   status: Scalars['String'];
+  transactions: Array<Transaction>;
   user: User;
+};
+
+export type PaymentInput = {
+  type: Scalars['String'];
+  value: Scalars['Float'];
 };
 
 export type Product = {
@@ -203,6 +212,15 @@ export type QueryUserArgs = {
   id: Scalars['String'];
 };
 
+export type Transaction = {
+  __typename?: 'Transaction';
+  id: Scalars['ID'];
+  order: Order;
+  paymentType: Scalars['String'];
+  user: User;
+  value: Scalars['Float'];
+};
+
 export type User = {
   __typename?: 'User';
   email: Scalars['String'];
@@ -226,6 +244,7 @@ export type AddToCartMutation = { __typename?: 'Mutation', addCartItem: { __type
 
 export type CreateMyOrderMutationVariables = Exact<{
   cartItemIDs: Array<Scalars['String']> | Scalars['String'];
+  payments: Array<PaymentInput> | PaymentInput;
   status: Scalars['String'];
 }>;
 
@@ -252,7 +271,7 @@ export type GetMyOrderQueryVariables = Exact<{
 }>;
 
 
-export type GetMyOrderQuery = { __typename?: 'Query', myOrder: { __typename?: 'Order', id: string, status: string, items: Array<{ __typename?: 'CartItem', id: string, quantity: number, productVariant: { __typename?: 'ProductVariant', id: string, title?: string | null, price: number, product: { __typename?: 'Product', id: string, name: string, labelPrice?: number | null } } }> } };
+export type GetMyOrderQuery = { __typename?: 'Query', myOrder: { __typename?: 'Order', id: string, status: string, createdAt: any, items: Array<{ __typename?: 'CartItem', id: string, quantity: number, productVariant: { __typename?: 'ProductVariant', id: string, title?: string | null, price: number, product: { __typename?: 'Product', id: string, name: string, labelPrice?: number | null }, image: { __typename?: 'ProductImage', id: string, source: string } } }>, transactions: Array<{ __typename?: 'Transaction', paymentType: string, value: number }> } };
 
 export type GetMyOrdersQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']>;
@@ -260,7 +279,7 @@ export type GetMyOrdersQueryVariables = Exact<{
 }>;
 
 
-export type GetMyOrdersQuery = { __typename?: 'Query', myOrders: Array<{ __typename?: 'Order', id: string, status: string, items: Array<{ __typename?: 'CartItem', id: string, quantity: number, productVariant: { __typename?: 'ProductVariant', id: string, title?: string | null, price: number, product: { __typename?: 'Product', id: string, name: string, labelPrice?: number | null } } }> }> };
+export type GetMyOrdersQuery = { __typename?: 'Query', myOrders: Array<{ __typename?: 'Order', id: string, status: string, createdAt: any, items: Array<{ __typename?: 'CartItem', id: string, quantity: number, productVariant: { __typename?: 'ProductVariant', id: string, title?: string | null, price: number, product: { __typename?: 'Product', id: string, name: string, labelPrice?: number | null }, image: { __typename?: 'ProductImage', id: string, source: string } } }>, transactions: Array<{ __typename?: 'Transaction', paymentType: string, value: number }> }> };
 
 export type GetOrderQueryVariables = Exact<{
   id: Scalars['String'];
@@ -355,8 +374,8 @@ export type AddToCartMutationHookResult = ReturnType<typeof useAddToCartMutation
 export type AddToCartMutationResult = Apollo.MutationResult<AddToCartMutation>;
 export type AddToCartMutationOptions = Apollo.BaseMutationOptions<AddToCartMutation, AddToCartMutationVariables>;
 export const CreateMyOrderDocument = gql`
-    mutation CreateMyOrder($cartItemIDs: [String!]!, $status: String!) {
-  createMyOrder(cartItemIDs: $cartItemIDs, status: $status) {
+    mutation CreateMyOrder($cartItemIDs: [String!]!, $payments: [PaymentInput!]!, $status: String!) {
+  createMyOrder(cartItemIDs: $cartItemIDs, payments: $payments, status: $status) {
     ... on MutationCreateMyOrderSuccess {
       data {
         id
@@ -390,6 +409,7 @@ export type CreateMyOrderMutationFn = Apollo.MutationFunction<CreateMyOrderMutat
  * const [createMyOrderMutation, { data, loading, error }] = useCreateMyOrderMutation({
  *   variables: {
  *      cartItemIDs: // value for 'cartItemIDs'
+ *      payments: // value for 'payments'
  *      status: // value for 'status'
  *   },
  * });
@@ -523,8 +543,17 @@ export const GetMyOrderDocument = gql`
           name
           labelPrice
         }
+        image {
+          id
+          source
+        }
       }
     }
+    transactions {
+      paymentType
+      value
+    }
+    createdAt
   }
 }
     `;
@@ -573,8 +602,17 @@ export const GetMyOrdersDocument = gql`
           name
           labelPrice
         }
+        image {
+          id
+          source
+        }
       }
     }
+    transactions {
+      paymentType
+      value
+    }
+    createdAt
   }
 }
     `;
