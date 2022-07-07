@@ -22,6 +22,9 @@ builder.queryField("myOrders", (t) => {
     resolve: async (query, root, args, ctx, info): Promise<Order[]> => {
       return prisma.order.findMany({
         ...query,
+        orderBy: {
+          createdAt: "desc",
+        },
         ...paginateQuery(args),
       });
     },

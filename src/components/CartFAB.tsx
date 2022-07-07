@@ -7,6 +7,7 @@ import {
 } from "react-feather";
 
 import useCart from "../common/hooks/useCart";
+import { currency } from "../common/utils";
 import { useAuth } from "./AuthProvider";
 
 type Props = {
@@ -71,7 +72,7 @@ export default function CartFAB({ openDetail }: Props) {
                     {selectedQuantity}/{totalQuantity} sản phẩm:
                   </div>
                   <div className="flex font-semibold text-xl">
-                    {new Intl.NumberFormat("vi-VN").format(totalPrice)}
+                    {currency(totalPrice)}
                     <div className="text-xs mt-0 ml-0.5">đ</div>
                   </div>
                 </div>

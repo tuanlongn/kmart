@@ -11,6 +11,7 @@ import {
 import useCart from "../common/hooks/useCart";
 
 import useOrder from "../common/hooks/useOrder";
+import { currency } from "../common/utils";
 
 type Props = {
   isPage?: boolean;
@@ -150,9 +151,7 @@ export default function Cart({ isPage = false }: Props) {
                   </div>
 
                   <div className="flex ml-3 text-sm">
-                    {new Intl.NumberFormat("vi-VN").format(
-                      item.productVariant.price
-                    )}
+                    {currency(item.productVariant.price)}
                     <div className="text-xs mt-0 ml-0.5">đ</div>
                   </div>
                 </div>
@@ -167,7 +166,7 @@ export default function Cart({ isPage = false }: Props) {
             {selectedQuantity}/{totalQuantity} sp đang chọn
           </div>
           <div className="flex justify-end mb-3 font-semibold">
-            Tổng tiền: {new Intl.NumberFormat("vi-VN").format(totalPrice)}
+            Tổng tiền: {currency(totalPrice)}
             <div className="text-xs mt-0 ml-0.5">đ</div>
           </div>
         </div>

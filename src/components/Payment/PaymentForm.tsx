@@ -12,6 +12,7 @@ import PaymentInput from "./PaymentInput";
 import { OrderStatus, PaymentTypes } from "@prisma/client";
 import useOrder from "../../common/hooks/useOrder";
 import toast from "react-hot-toast";
+import { currency } from "../../common/utils";
 
 type Props = {
   isPage?: boolean;
@@ -56,14 +57,9 @@ export default function Payment({ isPage = false }: Props) {
         id: "noti-payment",
       });
     } else if (totalPaymentValues < totalPrice) {
-      toast.error(
-        `Tiền thanh toán chưa đủ ${new Intl.NumberFormat("vi-VN").format(
-          totalPrice
-        )}đ`,
-        {
-          id: "noti-payment",
-        }
-      );
+      toast.error(`Tiền thanh toán chưa đủ ${currency(totalPrice)}đ`, {
+        id: "noti-payment",
+      });
     } else {
       const paymentArgs = Object.keys(payments).map((type) => ({
         type,
@@ -123,7 +119,7 @@ export default function Payment({ isPage = false }: Props) {
           <div className="flex flex-col items-end">
             <div>{selectedQuantity} sản phẩm</div>
             <div className="flex font-semibold text-xl">
-              {new Intl.NumberFormat("vi-VN").format(totalPrice)}
+              {currency(totalPrice)}
               <div className="text-xs mt-0 ml-0.5">đ</div>
             </div>
           </div>

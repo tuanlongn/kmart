@@ -42,11 +42,11 @@ export default function ProductItemHome({
       </div>
       <div className="flex justify-between items-center">
         <div className="text-lg font-semibold flex">
-          {new Intl.NumberFormat("vi-VN").format(price)}
+          {currency(price)}
           <div className="text-xs mt-0 ml-0.5">đ</div>
         </div>
         <div className="text-xs line-through flex">
-          {labelPrice && new Intl.NumberFormat("vi-VN").format(labelPrice)}
+          {labelPrice && currency(labelPrice)}
           <div className="text-xs -mt-1 ml-0">đ</div>
         </div>
       </div>
