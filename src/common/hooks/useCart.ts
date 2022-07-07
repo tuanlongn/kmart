@@ -103,7 +103,15 @@ export default function useCart() {
     }
   };
 
-  const totalPrice = useMemo(() => {
+  const clearSelectedCartItems = (cartItemIDs?: string[]) => {
+    if (cartItemIDs) {
+      setCartState((state) => ({
+        selectedIDs: selectedIDs.filter((id) => !cartItemIDs.includes(id)),
+      }));
+    }
+  };
+
+  const totalPrice: number = useMemo(() => {
     let total = 0;
     if (fetchedData) {
       const priceList = fetchedData.myCart
@@ -158,5 +166,6 @@ export default function useCart() {
     selected: selectedIDs,
     selectedQuantity,
     handleSelectChange,
+    clearSelectedCartItems,
   };
 }

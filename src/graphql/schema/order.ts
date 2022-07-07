@@ -128,7 +128,6 @@ builder.mutationField("createMyOrder", (t) => {
           status: CartItemStatus.HOLD,
         },
       });
-      console.log(cartItemCount);
 
       if (cartItemCount !== args.cartItemIDs.length) {
         throw new Error("cartItemIDs invalid");

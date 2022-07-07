@@ -1,12 +1,12 @@
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import { FC, useEffect, useRef, useState } from "react";
+import { Toaster } from "react-hot-toast";
 import { RecoilRoot } from "recoil";
 import { ApolloProvider } from "@apollo/client";
 
 import { useApollo } from "../store/apollo";
 import "../styles/globals.css";
-import FrontLayout from "../components/Layout/FrontLayout";
 import AuthProvider from "../components/AuthProvider";
 import { cartState } from "../common/hooks/useCart";
 
@@ -47,6 +47,7 @@ function MyApp({
         <AuthProvider>
           <Layout pageProps={pageProps}>
             <Component {...pageProps} />
+            <Toaster />
           </Layout>
         </AuthProvider>
       </ApolloProvider>

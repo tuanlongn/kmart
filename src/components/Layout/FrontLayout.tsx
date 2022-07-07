@@ -54,7 +54,7 @@ export default function FrontLayout({ children }: Props) {
                     <div className="mr-2">
                       <OrderIcon strokeWidth={1.5} size={18} color="#2f363d" />
                     </div>{" "}
-                    Đơn hàng của bạn
+                    Đơn hàng của tôi
                   </a>
                 </Menu.Item>
                 <Menu.Item>
