@@ -2,6 +2,7 @@ import { User } from "next-auth";
 import { signIn, signOut } from "next-auth/react";
 import React, { useContext } from "react";
 import { useEffect, useState } from "react";
+import SignIn from "./Auth/SignIn";
 import Modal from "./Modal/Modal";
 import useModal from "./Modal/useModal";
 
@@ -45,14 +46,7 @@ export default function AuthProvider({ children }: Props) {
       {children}
 
       <Modal isOpen={isLoginModalOpen} onClose={() => toogleLoginModal()}>
-        <div className="flex items-center justify-center h-screen">
-          <button
-            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 px-5 border-b-4 border-blue-700 hover:border-blue-500 rounded"
-            onClick={() => signIn("azure-ad")}
-          >
-            Đăng nhập với tài khoản Microsoft
-          </button>
-        </div>
+        <SignIn />
       </Modal>
     </AuthContext.Provider>
   );

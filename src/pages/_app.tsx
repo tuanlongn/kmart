@@ -43,14 +43,16 @@ function MyApp({
         set(cartState, { selectedIDs: cacheState.current })
       }
     >
-      <ApolloProvider client={client}>
-        <AuthProvider>
-          <Layout pageProps={pageProps}>
-            <Component {...pageProps} />
-            <Toaster />
-          </Layout>
-        </AuthProvider>
-      </ApolloProvider>
+      <SessionProvider>
+        <ApolloProvider client={client}>
+          <AuthProvider>
+            <Layout pageProps={pageProps}>
+              <Component {...pageProps} />
+              <Toaster />
+            </Layout>
+          </AuthProvider>
+        </ApolloProvider>
+      </SessionProvider>
     </RecoilRoot>
   );
 }

@@ -8,6 +8,7 @@ export async function middleware(req: NextRequest) {
   const session = await getToken({ req, secret });
 
   if (req.nextUrl.pathname.startsWith("/admin")) {
+    console.log(session);
     if (!session || !session.isAdmin) {
       return NextResponse.redirect(
         `${baseUrl}/api/auth/signin?callbackUrl=${encodeURIComponent(req.url)}`

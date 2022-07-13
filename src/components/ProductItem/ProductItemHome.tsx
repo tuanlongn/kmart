@@ -2,6 +2,8 @@ import React from "react";
 import Image from "next/image";
 import { Plus as PlusIcon } from "react-feather";
 
+import { currency } from "../../common/utils";
+
 interface Props {
   name: string;
   price: number;

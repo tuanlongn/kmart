@@ -8,11 +8,13 @@ type Props = {
 
 export default function CellImagePreview({ data, value }: Props) {
   console.log(data, value);
+  const image = data.variants[0].image;
+
   return (
     <div className="flex font-sans">
       <div className="flex-none w-48 relative">
         <Image
-          src={data.image.source}
+          src={image.source}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
           loading="lazy"

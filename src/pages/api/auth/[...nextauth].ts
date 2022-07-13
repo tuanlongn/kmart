@@ -11,6 +11,9 @@ export default NextAuth({
       clientSecret: process.env.AZURE_AD_CLIENT_SECRET || "",
     }),
   ],
+  pages: {
+    signIn: "/auth/signin",
+  },
   session: {
     strategy: "jwt",
     maxAge: 5 * 60 * 60, // 5 minutes

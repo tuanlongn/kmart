@@ -7,6 +7,7 @@ import type { GetServerSideProps, NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import CellImagePreview from "../../components/CellImagePreview";
+
 import { useGetProductsQuery } from "../../graphql/__generated__/resolvers-types";
 
 const Store: NextPage = ({}) => {
@@ -51,11 +52,9 @@ const Store: NextPage = ({}) => {
   const rowData = useMemo(() => {
     if (gridReady && data?.products) {
       return data.products.map((item: any, i: number) => {
-        console.log(item);
         return {
           order: i + 1,
-          productName: item.name,
-          image: item.images.length > 0 ? item.images[0] : null,
+          ...item,
         };
       });
     }
