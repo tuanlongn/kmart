@@ -16,7 +16,7 @@ export default async function handler(
   console.log(token);
 
   try {
-    await res.unstable_revalidate("/");
+    await res.revalidate("/");
     res.status(200).json({ revalidated: true });
   } catch (e) {
     res.status(500).send({ revalidated: false, message: "Error revalidating" });
